@@ -2,12 +2,12 @@ const mongoose=require("mongoose")
 const {Schema}=mongoose
 
 const wishlistSchema=new Schema({
-   userId:{
+    userId:{
     type:Schema.Types.ObjectId,
     ref:"User",
     required:true
-   },
-   products:[{
+    },
+    products:[{
     productId:{
         type:Schema.Types.ObjectId
         ref:"Product",
@@ -17,7 +17,7 @@ const wishlistSchema=new Schema({
         type:Date,
         default:Date.now
     }
-   }]
+    }]
 })
 
 const Wishlist=mongoose.model("Wishlist",wishlistSchema)

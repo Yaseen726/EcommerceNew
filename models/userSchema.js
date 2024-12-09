@@ -15,13 +15,14 @@ const userSchema=new Schema({
     phone:{
         type:String,
         required:false,
-        unique:false,
+        unique:true,
         sparse:true,
         default:null
     },
     googleId:{
-        type:string,
+        type:String,
         unique:true,
+        sparse:true
 
     },
     password:{
@@ -59,7 +60,7 @@ const userSchema=new Schema({
         type:Boolean
     },
     radeemedusers:[{
-        type:Schema.Type.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"User"
     }],
     searchhistory:[{

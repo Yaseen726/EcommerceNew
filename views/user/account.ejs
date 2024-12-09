@@ -1,0 +1,487 @@
+<%- include("../partials/user/header.ejs") %>
+<style>
+  .card-green {
+    background-color: #add8e6;
+  }
+
+  .main {
+    padding: 30px 0;
+  }
+
+  .dashboard-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+  }
+
+  .dashboard-menu {
+    background-color: #cce3e6;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    flex: 0 0 250px;
+  }
+
+  .dashboard-menu .nav-link {
+    font-weight: bold;
+    color: #30683c;
+    box-shadow: 0 4px 10px rgba(123, 131, 112, 0.3),
+      0 4px 20px rgba(0, 191, 255, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .dashboard-menu .nav-link:hover {
+    color: #00bfff;
+    box-shadow: 0 4px 15px rgba(173, 255, 47, 0.5),
+      0 6px 25px rgba(0, 191, 255, 0.4);
+  }
+
+  .dashboard-content {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    background-color: #487379;
+    color: white;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .btn-success {
+    background-color: #577194;
+    border-color: #6bb87d;
+  }
+
+  .btn-success:hover {
+    background-color: #506955;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .required {
+    color: red;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-menu {
+      padding: 10px;
+      flex: 0 0 200px;
+    }
+
+    .dashboard-content {
+      padding: 15px;
+    }
+  }
+</style>
+
+<main class="main">
+  <div class="page-header breadcrumb-wrap mb-3">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span>></span> Profile <span>></span> Account
+      </div>
+    </div>
+  </div>
+
+  <section class="pt-10 pb-10">
+    <div class="container">
+      <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="dashboard-menu">
+          <ul class="nav flex-column" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                id="user-profile-tab"
+                data-bs-toggle="tab"
+                href="#user-profile"
+                role="tab"
+                aria-controls="user-profile"
+                aria-selected="false"
+              >
+                <i class="fi-rs-user mr-10"></i>User Profile
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                id="edit-profile-tab"
+                data-bs-toggle="tab"
+                href="#edit-profile"
+                role="tab"
+                aria-controls="edit-profile"
+                aria-selected="true"
+              >
+                <i class="fi-rs-edit mr-10"></i>Edit Profile
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                id="address-tab"
+                data-bs-toggle="tab"
+                href="#address"
+                role="tab"
+                aria-controls="address"
+                aria-selected="true"
+              >
+                <i class="fi-rs-marker mr-10"></i>My Addresses
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                id="orders-tab"
+                data-bs-toggle="tab"
+                href="#orders"
+                role="tab"
+                aria-controls="orders"
+                aria-selected="false"
+              >
+                <i class="fi-rs-shopping-bag mr-10"></i>Orders
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                id="forgot-password-tab"
+                data-bs-toggle="tab"
+                href="#forgot-password"
+                role="tab"
+                aria-controls="forgot-password"
+                aria-selected="false"
+              >
+                <i class="fi-rs-lock mr-10"></i>Forgot Password
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">
+                <i class="fi-rs-sign-out mr-10"></i>Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="dashboard-content">
+          <div class="tab-content">
+            <!-- Edit Profile Tab -->
+            <div
+              class="tab-pane fade"
+              id="edit-profile"
+              role="tabpanel"
+              aria-labelledby="edit-profile-tab"
+            >
+              <div class="card card-green">
+                <div class="card-header">
+                  <h5 class="mb-0 text-center">Edit Profile</h5>
+                </div>
+                <div class="card-body text-center">
+                  <form
+                    id="myForm"
+                    method="post"
+                    action="/updateprofile?id=<%=user._id%>"
+                  >
+                    <div class="form-group">
+                      <label for="dname">Display Name</label>
+                      <input
+                        type="text"
+                        id="dname"
+                        name="dname"
+                        value="<%=user.username%>"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="phone">Phone</label>
+                      <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        value="<%=user.phone%>"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="<%=user.email%>"
+                        readonly
+                        class="form-control"
+                      />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Save</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Profile Tab -->
+            <div
+              class="tab-pane fade show active"
+              id="user-profile"
+              role="tabpanel"
+              aria-labelledby="user-profile-tab"
+            >
+              <div class="card card-green">
+                <div class="card-header">
+                  <h5 class="mb-0 text-center">User Profile</h5>
+                </div>
+                <div class="card-body text-center">
+                  <h5 class="card-title"><%= user.name %></h5>
+                  <p class="card-text">
+                    <strong>Phone:</strong> <%= user.phone || "Not Provided"
+                    %><br />
+                    <strong>Email:</strong> <%= user.email %><br />
+                  </p>
+                  <a href="/profile/password" class="btn btn-sm btn-success"
+                    >Change Password</a
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="tab-pane fade"
+              id="address"
+              role="tabpanel"
+              aria-labelledby="address-tab"
+            >
+              <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0">Manage Addresses</h5>
+                </div>
+                <div class="card-body">
+                  <% if (addresses.length > 0) { %>
+                  <div class="address-list">
+                    <ul class="list-group">
+                      <% addresses.forEach((addr) => { %>
+                      <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        <div class="address-info">
+                          <h6><%= addr.addresstype %></h6>
+                          <p>
+                            <%= addr.name %>, <%= addr.city %>, <%=
+                            addr.landmark %>, <%= addr.state %>, <%=
+                            addr.pincode %>
+                          </p>
+                          <p>Phone: <%= addr.phone %></p>
+                          <% if (addr.altphone) { %>
+                          <p>Alternate Phone: <%= addr.altphone %></p>
+                          <% } %>
+                        </div>
+                        <div class="address-actions">
+                          <a href="/address/edit/?id=<%= addr._id %>" class="btn btn-sm btn-info mb-1">Edit</a>
+                          <a
+                            href="/address/delete/?id=<%= addr._id %>"
+                            class="btn btn-sm btn-danger mb-1"
+                            onclick="return confirm('Are you sure?');"
+                            >Delete</a
+                          >
+                        </div>
+                      </li>
+                      <% }); %>
+                    </ul>
+                  </div>
+                  <% } else { %>
+                  <p class="text-center text-muted">No addresses added yet.</p>
+                  <% } %>
+                  <div class="text-center mt-4">
+                    <button
+                      class="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addAddressModal"
+                    >
+                      <i class="bi bi-plus-circle"></i> Add New Address
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal for Adding a New Address -->
+            <div
+              class="modal fade"
+              id="addAddressModal"
+              tabindex="-1"
+              aria-labelledby="addAddressModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form id="addAddressForm" method="POST" action="/address/add">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="addAddressModalLabel">
+                        Add New Address
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label for="addresstype" class="form-label"
+                          >Address Type</label
+                        >
+                        <input
+                          type="text"
+                          id="addresstype"
+                          name="addresstype"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="name" class="form-label">Name</label>
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input
+                          type="text"
+                          id="city"
+                          name="city"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="landmark" class="form-label"
+                          >Landmark</label
+                        >
+                        <input
+                          type="text"
+                          id="landmark"
+                          name="landmark"
+                          class="form-control"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="state" class="form-label">State</label>
+                        <input
+                          type="text"
+                          id="state"
+                          name="state"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="pincode" class="form-label">Pincode</label>
+                        <input
+                          type="text"
+                          id="pincode"
+                          name="pincode"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input
+                          type="text"
+                          id="phone"
+                          name="phone"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="altphone" class="form-label"
+                          >Alternate Phone</label
+                        >
+                        <input
+                          type="text"
+                          id="altphone"
+                          name="altphone"
+                          class="form-control"
+                        />
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                      <button type="submit" class="btn btn-primary">
+                        Save Address
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+           
+
+            <!-- Orders Tab -->
+            <div
+              class="tab-pane fade"
+              id="orders"
+              role="tabpanel"
+              aria-labelledby="orders-tab"
+            >
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Your Orders</h5>
+                </div>
+                <div class="card-body">
+                  <p>No orders found.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forgot Password Tab -->
+            <div
+              class="tab-pane fade"
+              id="forgot-password"
+              role="tabpanel"
+              aria-labelledby="forgot-password-tab"
+            >
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Forgot Password</h5>
+                </div>
+                <div class="card-body">
+                  <p>Please contact support to reset your password.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include("../partials/user/footer.ejs") %>

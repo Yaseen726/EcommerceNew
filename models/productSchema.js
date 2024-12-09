@@ -13,10 +13,10 @@ const ProductSchema=new Schema({
     },
     brand:{
         type:String,
-        required:true
+        required:false
     },
     category:{
-        type:Schema.type.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"Category",
         required:true
     },
@@ -53,8 +53,8 @@ const ProductSchema=new Schema({
         enum:["Available","out of stock","Discontinued"],
         required:true
     },
-    {timestamps:true}
-})
+    
+},{timestamps:true})
 
 
 const Product=mongoose.model("Product",ProductSchema)

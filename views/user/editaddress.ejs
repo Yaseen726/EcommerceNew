@@ -1,0 +1,114 @@
+<%- include("../partials/user/header.ejs") %>
+<style>
+  /* Container styles */
+  .edit-address-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Title styles */
+  .edit-address-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Form styles */
+  .edit-address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+
+  /* Button styles */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-save {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+  }
+
+  .btn-save:hover {
+    background: #0056b3;
+  }
+</style>
+
+<div class="edit-address-container">
+  <h2 class="edit-address-title">Edit Address</h2>
+  <form action="/address/edit/?id=<%= address._id %>" method="POST" class="edit-address-form">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" value="<%= address.name %>" required />
+    </div>
+    <div class="form-group">
+      <label for="city">City:</label>
+      <input type="text" id="city" name="city" value="<%= address.city %>" required />
+    </div>
+    <div class="form-group">
+      <label for="landmark">Landmark:</label>
+      <input type="text" id="landmark" name="landmark" value="<%= address.landmark %>" />
+    </div>
+    <div class="form-group">
+      <label for="state">State:</label>
+      <input type="text" id="state" name="state" value="<%= address.state %>" required />
+    </div>
+    <div class="form-group">
+      <label for="pincode">Pincode:</label>
+      <input type="number" id="pincode" name="pincode" value="<%= address.pincode %>" required />
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone" name="phone" value="<%= address.phone %>" required />
+    </div>
+    <div class="form-group">
+      <label for="altphone">Alt Phone:</label>
+      <input type="text" id="altphone" name="altphone" value="<%= address.altphone %>" />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn-save">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<>

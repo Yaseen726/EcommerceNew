@@ -1,0 +1,477 @@
+<%- include('../partials/user/header') %>
+    <style>
+        header {
+            position: relative;
+            z-index: 1000;
+        }
+
+        .detail-gallery .product-image-slider {
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .modal-body {
+            padding-top: 100px;
+        }
+
+        .detail-extralink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .detail-qty {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            height: 40px;
+            width: 100px;
+            /* Ensure consistency in width */
+        }
+
+        .qty-val {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            background-color: #fff;
+            color: #333;
+            border: none;
+            margin: 0;
+        }
+
+        .qty-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .qty-down,
+        .qty-up {
+            background-color: #f8f9fa;
+            border: none;
+            color: #333;
+            font-size: 12px;
+            width: 30px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .qty-down:hover,
+        .qty-up:hover {
+            background-color: #e9ecef;
+        }
+
+        .qty-down {
+            border-radius: 0 0 8px 0;
+        }
+
+        .qty-up {
+            border-radius: 8px 0 0 0;
+        }
+
+        .product-extra-link2 {
+            display: inline-block;
+        }
+
+        .btn-success {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            color: #e74c3c;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .cart-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-buy-now {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-buy-now:hover {
+            background-color: #218838;
+            color: white;
+            text-decoration: none;
+        }
+
+        .coupon-section {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    .coupon-section input {
+        flex: 1;
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .coupon-section button {
+        padding: 6px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .coupon-section button:hover {
+        background-color: #0056b3;
+    }
+    </style>
+
+
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.category %>">
+                        <%= cat.name %>
+                    </a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <%= product.productName %>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+
+    <div class="container">
+        <div class="modal-body">
+            <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="detail-gallery">
+                        <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                        <!-- MAIN SLIDES -->
+                        <div class="product-image-slider">
+
+                            <%for(let i=0;i<product.productImage.length;i++){%>
+                                <figure class="border-radius-10">
+                                    <img src="/uploads/re-image/<%= product.productImage[i] %>"
+                                        alt="<%=product.productName%>">
+                                </figure>
+                                <%}%>
+                        </div>
+                        <!-- THUMBNAILS -->
+                        <div class="slider-nav-thumbnails pl-15 pr-15">
+                            <%for(let i=0;i<product.productImage.length;i++){%>
+                                <div><img src="/uploads/re-image/<%= product.productImage[i] %>" alt="product image">
+                                </div>
+                                <%}%>
+                        </div>
+                    </div>
+                    <!-- End Gallery -->
+                    <div class="social-icons single-share">
+                        <ul class="text-grey-5 d-inline-block">
+                            <li><strong class="mr-10">Share this:</strong></li>
+                            <li class="social-facebook"><a href="#"><img
+                                        src="evara-frontend/assets/imgs/theme/icons/icon-facebook.svg" alt=""></a></li>
+                            <li class="social-twitter"> <a href="#"><img
+                                        src="evara-frontend/assets/imgs/theme/icons/icon-twitter.svg" alt=""></a></li>
+                            <li class="social-instagram"><a href="#"><img
+                                        src="evara-frontend/assets/imgs/theme/icons/icon-instagram.svg" alt=""></a></li>
+                            <li class="social-linkedin"><a href="#"><img
+                                        src="evara-frontend/assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="detail-info">
+                        <h3 class="title-detail mt-30 text-center">
+                            <%=product.productName%>
+                        </h3>
+                        <div class="product-detail-rating text-center">
+                            <div class="pro-details-brand">
+                                <span> Brand: <a href="shop-grid-right.html">
+                                        <%=product.brand%>
+                                    </a></span>
+                            </div>
+                            <div class="product-rate-cover text-end">
+                                <div class="product-rate d-inline-block">
+                                    <div class="product-rating" style="width:90%"></div>
+                                </div>
+                                <span class="font-small ml-5 text-muted"> (25 reviews)</span>
+                            </div>
+                        </div>
+                        <div class="clearfix product-price-cover text-center">
+                            <div class="product-price primary-color">
+                              <ins><span class="text-brand">
+                                ₹ <%=finalSalePrice.toLocaleString()%>
+                              </span></ins>
+                              <ins><span class="old-price font-md ml-15">
+                                ₹ <%=product.regularPrice.toLocaleString()%>
+                              </span></ins>
+                            </div>
+                          </div>
+                          
+                        <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                        <div class="short-desc mb-30 text-center">
+                            <p class="font-sm">
+                                <%=product.description%>
+                            </p>
+                        </div>
+
+                        <div class="attr-detail attr-color mb-15 text-center">
+                            <strong class="mr-10">Color: <%=product.color%></strong>
+                        </div>
+                        <% if(product.quantity> 0) { %>
+                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                            <div class="product-actions">
+                                <div class="cart-actions">
+                                    <div class="detail-qty">
+                                        <input type="text" name="quantity" value="1" class="qty-val" id="qty-val"
+                                            readonly>
+                                        <div class="qty-controls">
+                                            <button type="button" class="qty-up">
+                                                <i class="fi-rs-angle-small-up"></i>
+                                            </button>
+                                            <button type="button" class="qty-down">
+                                                <i class="fi-rs-angle-small-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <form id="add-to-cart-<%= product._id %>" action="/addtocart?id=<%= product._id %>" method="POST" style="display: inline;">
+                                        <input type="hidden" name="quantity" id="cart-quantity-<%= product._id %>" value="1">
+                                        <button type="submit" class="btn btn-success">Add to cart</button>
+                                    </form>
+                                    <button type="button" aria-label="Add To Wishlist" class="action-btn hover-up"
+                                        onclick="">
+                                        <i class="fi-rs-heart"></i>
+                                    </button>
+                                </div>
+                                <a href="">Buy Now</a>
+                            </div>
+                            <div class="coupon-section">
+                                <input type="text" placeholder="Enter coupon code" id="couponCode">
+                                <button type="button">Apply</button>
+                            </div>
+                            <% } else { %>
+                                <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                <div class="detail-extralink text-center">
+                                    <p class="text-danger font-weight-bold">Sold Out</p>
+                                    <div class="product-extra-link2 d-inline-block">
+                                        <button type="button" class="button button-add-to-cart" disabled
+                                            style="background-color: #d3d3d3; cursor: not-allowed;">Sold Out</button>
+                                        <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i
+                                                class="fi-rs-heart"></i></a>
+                                    </div>
+                                </div>
+                                <% } %>
+
+                                    <%if(product.quantity> 0){%>
+                                        <ul class="product-meta font-xs color-grey mt-50 text-center"><br>
+                                            <li>Availability:<span class="in-stock text-success ml-5">
+                                                    <%=product.quantity%> Items In Stock
+                                                </span></li>
+                                        </ul>
+                                        <%}else{%>
+                                            <ul class="product-meta font-xs color-grey mt-50 text-center"><br>
+                                                <li>Availability:<span class="in-stock text-danger ml-5">Out of
+                                                        Stock</span></li>
+                                            </ul>
+                                            <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="recommended-products container mt-5">
+        <h4 class="text-center mb-4">Recommended Products</h4>
+        <div class="row">
+            <% recProducts.forEach(recommended=> { %>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card">
+                        <a href="/productdetails?id=<%= recommended._id %>">
+                            <img src="/uploads/re-image/<%= recommended.productImage[0] %>" class="card-img-top"
+                                alt="<%= recommended.productName %>">
+                        </a>
+                        <div class="card-body text-center">
+                            <h5 class="card-title">
+                                <%= recommended.productName %>
+                            </h5>
+                            <p class="card-text text-primary">₹ <%= recommended.salePrice.toLocaleString() %>
+                            </p>
+                            <a href="/productdetails?id=<%= recommended._id %>"
+                                class="btn btn-outline-success btn-success">View
+                                Details</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+    </div>
+    
+    <div class="container mt-5">
+        <h4 class="text-center mb-4">Customer Reviews</h4>
+        <div class="review-section">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <!-- Review Submission Form -->
+                    <div class="review-form mb-4">
+                        <h5 class="text-center">Write a Review</h5>
+                        <form action="" method="POST" class="p-4 border rounded">
+                            <div class="form-group mb-3">
+                                <label for="reviewerName">Name</label>
+                                <input type="text" class="form-control" id="reviewerName" placeholder="Enter your name">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="reviewerEmail">Email</label>
+                                <input type="email" class="form-control" id="reviewerEmail" placeholder="Enter your email">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="reviewRating">Rating</label>
+                                <select class="form-control" id="reviewRating">
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="1">⭐</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="reviewMessage">Your Review</label>
+                                <textarea class="form-control" id="reviewMessage" rows="4"
+                                    placeholder="Share your thoughts about the product"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Submit Review</button>
+                        </form>
+                    </div>
+                    <!-- Display Reviews -->
+                    <div class="customer-reviews">
+                        <h5 class="mb-4 text-center">What Customers Are Saying</h5>
+                        <div class="review-item mb-4 p-3 border rounded">
+                            <h6 class="mb-1">John Doe</h6>
+                            <p class="small text-muted mb-1">⭐⭐⭐⭐⭐</p>
+                            <p class="mb-0">"Amazing product! Exceeded my expectations."</p>
+                        </div>
+                        <div class="review-item mb-4 p-3 border rounded">
+                            <h6 class="mb-1">Jane Smith</h6>
+                            <p class="small text-muted mb-1">⭐⭐⭐⭐</p>
+                            <p class="mb-0">"Good quality but took some time to deliver."</p>
+                        </div>
+                        <div class="review-item mb-4 p-3 border rounded">
+                            <h6 class="mb-1">Alex Brown</h6>
+                            <p class="small text-muted mb-1">⭐⭐⭐</p>
+                            <p class="mb-0">"Decent product for the price, but packaging could be better."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script>
+
+
+const qtyVal = document.getElementById("qty-val");
+const qtyUp = document.querySelector(".qty-up");
+const qtyDown = document.querySelector(".qty-down");
+
+qtyUp.addEventListener("click", () => {
+  let quantity = parseInt(qtyVal.value, 10) || 1;
+  qtyVal.value = quantity + 1;
+  document.getElementById("cart-quantity").value = qtyVal.value; // Update form input
+});
+
+qtyDown.addEventListener("click", () => {
+  let quantity = parseInt(qtyVal.value, 10) || 1;
+  if (quantity > 1) {
+    qtyVal.value = quantity - 1;
+    document.getElementById("cart-quantity").value = qtyVal.value; // Update form input
+  }
+});
+
+const addToCartForms = document.querySelectorAll('form[action^="/addtocart"]');
+
+addToCartForms.forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const quantity = formData.get('quantity');
+        const productId = new URLSearchParams(form.action.split('?')[1]).get('id');
+
+        try {
+            const response = await fetch(`/addtocart?id=${productId}&qty=${qtyVal.value}`, {
+                method: 'POST',
+                body: JSON.stringify({ quantity }),
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            const data = await response.json();
+            if (!data.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: data.message,
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                text: 'The product has been added to your cart.',
+            });
+        } catch (error) {
+            console.error('Fetch error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again later.',
+            });
+        }
+    });
+});
+    </script>
+
+
+    <%- include('../partials/user/footer') %>

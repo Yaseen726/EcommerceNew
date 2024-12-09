@@ -4,7 +4,7 @@ const {Schema}=mongoose
 
 const addressSchema=new Schema({
     userId:{
-        type:Schema.Types.ObjectId.
+        type:Schema.Types.ObjectId,
         ref:"User",
         required:true
     },
@@ -26,7 +26,7 @@ const addressSchema=new Schema({
             required:true,
         },
         state:{
-            type:String.
+            type:String,
             required:true
         },
         pincode:{

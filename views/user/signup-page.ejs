@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Luxora Market</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="evara-frontend/assets/imgs/theme/favicon.svg">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="evara-frontend/assets/css/main.css?v=3.4">
+   
+
+<body>
+    <section class="pt-150 pb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 m-auto">
+                    <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
+                        <div class="padding_eight_all bg-white">
+                            <div class="heading_s1">
+                                <h3 class="mb-30">Create an Account</h3>
+                            </div>
+                            <p class="mb-50 font-sm">
+                                Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy.
+                            </p>
+                            <form method="POST" action="/signup">
+                                <div class="form-group">
+                                    <input type="text"  name="name" placeholder="Full Name">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text"  name="email" placeholder="Email">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text"  name="phone" placeholder="PhoneNumber">
+                                </div>
+                                <div class="form-group">
+                                    <input  type="password" name="password" placeholder="Password">
+                                </div>
+                                <div class="form-group">
+                                    <input  type="password" name="confirm_password" placeholder="Confirm password">
+                                </div>
+                                <div class="login_footer form-group">
+                                    <div class="chek-form">
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox12">
+                                            <label class="form-check-label" for="exampleCheckbox12"><span>I agree to terms &amp; Policy.</span></label>
+                                        </div>
+                                    </div>
+                                    <a href="page-privacy-policy.html"><i class="fi-rs-book-alt mr-5 text-muted"></i>Learn more</a>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-fill-out btn-block hover-up" name="register">Submit &amp; Register</button>
+                                </div>
+                                <%if(message){%>
+                                    <p class="danger"><%=message%></p>
+                                <%}%>
+                            </form>
+                            <div class="divider-text-center mt-15 mb-15">
+                                <span>or</span>
+                            </div>
+                            <ul class="btn-login list_none text-center mb-15">
+                                <li><a href="/auth/google" class="btn btn-google hover-up">Login With Google</a></li>
+                            </ul>
+                            <div class="text-muted text-center">Already have an account? <a href="/login">Sign in now</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vendor JS-->
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.js"></script>
+    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/jquery-ui.js"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/waypoints.js"></script>
+    <script src="assets/js/plugins/counterup.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/images-loaded.js"></script>
+    <script src="assets/js/plugins/isotope.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+    <!-- Template  JS -->
+    <script src="./assets/js/main.js?v=3.4"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+const form = document.querySelector("form");
+const nameInput = form.querySelector("input[name='name']");
+const emailInput = form.querySelector("input[name='email']");
+const phoneInput = form.querySelector("input[name='phone']");
+const passwordInput = form.querySelector("input[name='password']");
+const confirmPasswordInput = form.querySelector("input[name='confirm_password']");
+const checkboxInput = form.querySelector("input[name='checkbox']");
+
+form.addEventListener("submit", function (event) {
+    // Reset all error messages
+    resetErrors();
+
+    let isValid = true;
+
+    // Validate name
+    if (nameInput.value.trim() === "") {
+    showError(nameInput, "Name is .");
+    isValid = false;
+    }
+
+    // Validate email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailInput.value)) {
+    showError(emailInput, "Please enter a valid email address.");
+    isValid = false;
+    }
+
+    // Validate phone number
+    const phonePattern = /^[0-9]{10}$/;
+    if (!phonePattern.test(phoneInput.value)) {
+    showError(phoneInput, "Phone number should be exactly 10 digits.");
+    isValid = false;
+    }
+
+    // Validate password
+    if (passwordInput.value.length < 6) {
+    showError(passwordInput, "Password must be at least 6 characters long.");
+    isValid = false;
+    }
+
+    // Validate confirm password
+    if (confirmPasswordInput.value !== passwordInput.value) {
+    showError(confirmPasswordInput, "Passwords do not match.");
+    isValid = false;
+    }
+
+    // Validate checkbox
+    if (!checkboxInput.checked) {
+    showError(checkboxInput, "You must agree to the terms and policy.");
+    isValid = false;
+    }
+
+    // Prevent form submission if validation fails
+    if (!isValid) {
+    event.preventDefault();
+    }
+});
+
+  // Helper function to show error messages
+function showError(input, message) {
+    const error = document.createElement("div");
+    error.className = "error-message";
+    error.style.color = "red";
+    error.style.marginTop = "5px";
+    error.innerText = message;
+    input.parentNode.appendChild(error);
+}
+
+  // Helper function to reset error messages
+function resetErrors() {
+    const errors = form.querySelectorAll(".error-message");
+    errors.forEach((error) => error.remove());
+}
+});
+
+    </script>
+
+</body>
+</html>

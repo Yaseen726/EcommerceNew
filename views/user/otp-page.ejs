@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Verify OTP - Luxora Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="evara-frontend/assets/imgs/theme/favicon.svg"
+    />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="evara-frontend/assets/css/main.css?v=3.4" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <section class="pt-150 pb-150">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 m-auto">
+            <div
+              class="login_wrap widget-taber-content p-30 background-white border-radius-5"
+            >
+              <div class="padding_eight_all bg-white">
+                <div class="heading_s1">
+                  <h3 class="mb-30">OTP Verification</h3>
+                </div>
+                <p class="mb-50 font-sm">
+                  Enter the OTP sent to your registered email or phone number to
+                  verify your account.
+                </p>
+                <form
+                  method="POST"
+                  action="/verify-otp"
+                  onsubmit="return validateotp()"
+                >
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      required
+                      name="otp"
+                      placeholder="Enter OTP"
+                      maxlength="6"
+                      class="form-control"
+                      id="otp"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <button
+                      type="submit"
+                      class="btn btn-fill-out btn-block hover-up"
+                    >
+                      Verify OTP
+                    </button>
+                  </div>
+                </form>
+                <div class="text-center mt-3">
+                  <p id="timer">
+                    Resend OTP in <span id="countdown">59</span> seconds
+                  </p>
+                  <p id="resend">
+                    Didn't receive the code?
+                    <a
+                      href="/resend-otp"
+                      class="text-primary disabled-link"
+                      id="resend-link"
+                      onclick="return resendotp()"
+                      >Resend OTP</a
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+
+
+    <script>
+      let countdown = 59; 
+      let timer; 
+
+      const countdownDisplay = document.getElementById("countdown");
+      const resendLink = document.getElementById("resend-link");
+
+      function startTimer() {
+        clearInterval(timer); 
+        countdown = 59; 
+        timer = setInterval(() => {
+          countdown--;
+          countdownDisplay.textContent = countdown;
+          if (countdown <= 0) {
+            clearInterval(timer);
+            resendLink.classList.remove("disabled-link");
+            resendLink.style.pointerEvents = "auto"; 
+          }
+        }, 1000);
+      }
+
+      startTimer();
+
+      function validateotp() {
+        const otpInp = document.getElementById("otp").value;
+
+        $.ajax({
+          type: "POST",
+          url: "/verify-otp",
+          data: $.param({ otp: otpInp }),
+          success: function (response) {
+            if (response.success) {
+              Swal.fire({
+                title: "OTP",
+                text: "OTP verified successfully",
+                icon: "success",
+              }).then(() => {
+                window.location.href = response.redirectUrl || "/";
+              });
+            } else {
+              Swal.fire({
+                title: "Error",
+                text: response.message,
+                icon: "error",
+              });
+            }
+          },
+          error: function () {
+            Swal.fire({
+              title: "Invalid OTP",
+              text: "Please Enter Correct OTP",
+              icon: "error",
+            });
+          },
+        });
+        return false;
+      }
+
+      function resendotp() {
+        startTimer();
+        $.ajax({
+          type: "POST",
+          url: "/resend-otp",
+          success: function (response) {
+            if (response.success) {
+              Swal.fire({
+                icon: "success",
+                title: "OTP Resent Successfully",
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occurred while Resending OTP",
+              });
+            }
+          },
+          error: function () {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Failed to Resend OTP, please try again.",
+            });
+          },
+        });
+        return false;
+      }
+    </script>
+  </body>
+</html>

@@ -4598,4 +4598,19 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
     display: none;
   }
 }
+.logo-width-1 {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.logo-svg {
+  width: 100%;
+  height: auto;
+}
+
+.logo a {
+  text-decoration: none;
+  display: block;
+}
+
 /*# sourceMappingURL=main.css.map */
