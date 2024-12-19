@@ -1,0 +1,211 @@
+<%- include('../partials/admin/header') %>
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Dashboard</h2>
+            <p>Whole data about your business here</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light">
+                        <i class="text-primary material-icons md-monetization_on"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Revenue</h6>
+                        <span>₹<%= salesData?.totalSalesAmount ? salesData.totalSalesAmount.toLocaleString() : '0' %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-success-light">
+                        <i class="material-icons md-shopping_bag text-success"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1">Total Orders</h6>
+                        <span><%= count || '0' %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chart with Filters -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title">Sales Statistics</h5>
+                        <select class="form-select" style="width: auto;" id="timeFilter">
+                            <option value="yearly">Yearly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products and Categories -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Top 10 Best Selling Products</h5>
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Top Categories</h5>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="categoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Parse data passed from the backend
+    const productsData = <%- JSON.stringify(products || []) %>;
+    const categoriesData = <%- JSON.stringify(categories || []) %>;
+    const salesData = <%- JSON.stringify(salesData || { yearly: {}, monthly: {}, weekly: {} }) %>;
+
+    console.log(productsData,"front end logic of productsData")
+    console.log(categoriesData,"frontend logic of category data")
+    console.log(salesData,"frontend logic of sales data")
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Main Sales Chart
+        const mainChartCtx = document.getElementById('mainChart');
+        if (mainChartCtx) {
+            const mainChart = new Chart(mainChartCtx, {
+                type: 'line',
+                data: {
+                    labels: salesData?.monthly?.labels || [],
+                    datasets: [{
+                        label: 'Sales',
+                        data: salesData?.monthly?.data || [],
+                        borderColor: '#8884d8',
+                        tension: 0.1,
+                        fill: false,
+                        pointBackgroundColor: '#8884d8',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += new Intl.NumberFormat('en-US', {
+                                        style: 'currency',
+                                        currency: 'INR'
+                                    }).format(context.parsed.y);
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('timeFilter').addEventListener('change', function (e) {
+                const timeFrame = e.target.value;
+                mainChart.data.labels = salesData[timeFrame]?.labels || [];
+                mainChart.data.datasets[0].data = salesData[timeFrame]?.data || [];
+                mainChart.update();
+            });
+        }
+
+        // Products Chart
+        const productsChartCtx = document.getElementById("productsChart");
+        if (productsChartCtx) {
+            new Chart(productsChartCtx, {
+                type: "bar",
+                data: {
+                    labels: productsData.map(item => item.productName || 'Unknown'),
+                    datasets: [{
+                        label: "Quantity Sold",
+                        data: productsData.map(item => item.totalQuantitySold || 0),
+                        backgroundColor: "rgba(54, 162, 235, 0.6)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Categories Chart
+        const categoriesChartCtx = document.getElementById("categoriesChart");
+        if (categoriesChartCtx) {
+            new Chart(categoriesChartCtx, {
+                type: "pie",
+                data: {
+                    labels: categoriesData.map(item => item.categoryName || 'Unknown'),
+                    datasets: [{
+                        label: "Total Sold",
+                        data: categoriesData.map(item => item.totalQuantitySold || 0),
+                        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+<%- include('../partials/admin/footer') %>

@@ -7,6 +7,11 @@ const orderSchema = new Schema({
         default:()=>uuidv4(),
         unique:true
     },
+    userId:{
+        type:Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    },
     orderedItem:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -14,7 +19,7 @@ const orderSchema = new Schema({
             required:true
         },
         price:{
-            type:Number.
+            type:Number,
             default:0
         }
         }],
@@ -31,8 +36,8 @@ const orderSchema = new Schema({
         required:true
     },
     address:{
-        type:Schema.Types.ObjectId
-        ref:"User"
+        type:Schema.Types.ObjectId,
+        ref:"Address",
         required:true
     },
     invoiceDate:{
@@ -41,7 +46,7 @@ const orderSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:["pending","processing","shipped","delevered","cancelled","return request","returned"]
+        enum: ["pending", "processing", "shipped", "delivered", "cancelled", "return request", "returned","completed"]
     },
     createdOn:{
         type:Date,
@@ -51,6 +56,9 @@ const orderSchema = new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    razorpayOrderId:{
+        type:String,
     }
     
 });

@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <title>Evara Dashboard</title>
@@ -15,7 +14,11 @@
     <link rel="shortcut icon" type="image/x-icon" href="/evara-backend/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link href="/evara-backend/assets/css/main.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+    href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css"
+    rel="stylesheet"
+  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <body>
@@ -33,7 +36,7 @@
             <ul class="menu-aside">
                 <!-- Dashboard -->
                 <li class="menu-item">
-                    <a class="menu-link" href="index.html">
+                    <a class="menu-link" href="/admin/dashboardAdmin">
                         <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
@@ -53,12 +56,6 @@
                     </a>
                 </li>
                 <!-- Brands -->
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/brands">
-                        <i class="icon material-icons md-stars"></i>
-                        <span class="text">Brands</span>
-                    </a>
-                </li>
                 <!-- Add Product -->
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/addProduct">
@@ -77,7 +74,13 @@
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/coupons">
                         <i class="icon material-icons md-card_giftcard"></i>
-                        <span class="text">Coupon</span>
+                        <span class="text">Create Coupon</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/managecoupon">
+                        <i class="icon material-icons md-card_giftcard"></i>
+                        <span class="text">Coupon Management</span>
                     </a>
                 </li>
                 <!-- Banner -->

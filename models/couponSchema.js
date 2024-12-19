@@ -29,6 +29,10 @@ const couponSchema=new Schema({
         type:Boolean,
         default:true
       },
+      isExpired: {
+        type: Boolean, 
+        default: false 
+      }, 
       userId:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"

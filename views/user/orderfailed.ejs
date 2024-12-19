@@ -1,0 +1,169 @@
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+    }
+
+    .error-container {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        max-width: 500px;
+        width: 90%;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-circle {
+        width: 120px;
+        height: 120px;
+        position: relative;
+        margin: 0 auto 30px;
+        background: linear-gradient(45deg, #dc3545, #e83e8c);
+        border-radius: 50%;
+        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scaleIn 0.5s ease-out 0.3s both;
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .error-circle::before, .error-circle::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 60px;
+    background: white;
+    border-radius: 4px;
+    transform-origin: center;
+}
+
+.error-circle::before {
+    transform: rotate(45deg);
+    animation: crossBefore 0.5s ease-out 0.8s both;
+}
+
+.error-circle::after {
+    transform: rotate(-45deg);
+    animation: crossAfter 0.5s ease-out 0.8s both;
+}
+
+@keyframes crossBefore {
+    from {
+        opacity: 0;
+        transform: scale(0.8) rotate(45deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(45deg);
+    }
+}
+
+@keyframes crossAfter {
+    from {
+        opacity: 0;
+        transform: scale(0.8) rotate(-45deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(-45deg);
+    }
+}
+
+
+    .error-title {
+        color: #2d3436;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .error-message {
+        color: #636e72;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .retry-btn {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        background: linear-gradient(45deg, #dc3545, #e83e8c);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .retry-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .error-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .error-circle {
+            width: 100px;
+            height: 100px;
+        }
+
+        .error-circle::before, .error-circle::after {
+            width: 6px;
+            height: 50px;
+        }
+
+        .error-title {
+            font-size: 2rem;
+        }
+
+        .error-message {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-circle"></div>
+    <h1 class="error-title">Order Failed</h1>
+    <p class="error-message">
+        We encountered an issue processing your order.<br>
+        Please try again or contact our support team.
+    </p>
+    <a href="/" class="retry-btn">Retry Payment Again</a>
+</div>

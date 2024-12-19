@@ -1,9 +1,4 @@
 <%- include("../partials/admin/header.ejs") %>
-<head>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"
-  />
   <style>
     .col-md-3 {
       padding: 20px;
@@ -88,8 +83,6 @@
       border-color: #0056b3;
     }
   </style>
-</head>
-<body>
   <section class="content-main">
     <div class="content-header">
       <div>
@@ -118,7 +111,7 @@
             <form
               method="post"
               action="/admin/addCategory"
-              onsubmit="handleFormSubmit(event)"
+              onsubmit="return handleFormSubmit(event)"
             >
               <div class="mb-4">
                 <label for="product_name" class="form-label">Name</label>
@@ -130,7 +123,7 @@
                   id="product_name"
                   required
                 />
-                <div id="name-error" class="error-message"></div>
+                <div id="name-error" class="error-message" style="color: red;"></div>
               </div>
               <div class="mb-4">
                 <label class="form-label">Description</label>
@@ -141,7 +134,7 @@
                   id="descriptionId"
                   required
                 ></textarea>
-                <div id="description-error" class="error-message"></div>
+                <div id="description-error" class="error-message" style="color: red;"></div>
               </div>
               <div class="d-grid">
                 <button class="btn btn-primary" type="submit">
@@ -158,8 +151,8 @@
                     <th class="text-center"></th>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Offer Price</th>
-                    <th>Offer</th>
+                    <th>Offer percentage</th>
+                    <th>Add/Remove Offer</th>
                     <th>Status</th>
                     <th>List/Unlist</th>
                     <th class="text-start">Edit</th>
@@ -171,14 +164,19 @@
                     <td></td>
                     <td class="text-start"><%= category.name %></td>
                     <td class="text-start"><%= category.description %></td>
-                    <td></td>
+                    <td>
+                      <%if(category.categoryOffer){%>
+                        <%=category.categoryOffer%>%
+                      <%}else{%>
+                      0%
+                      <%}%>
+                    </td>
                     <td class="text-start">
-                      <button class="btn btn-info" style="width: 100px">
-                        <a href="#" class="text-white">Add Offer</a>
-                      </button>
-                      <button class="btn btn-info" style="width: 100px">
-                        <a href="#" class="text-white">Remove</a>
-                      </button>
+                      <% if (category.categoryOffer > 0) { %>
+                        <button class="btn btn-info text-white" style="width: 100px" onclick="removeOffer('<%=category._id%>')">Remove Offer</button>
+                      <% } else { %>
+                        <button class="btn btn-info text-white" style="width: 100px" onclick="addOffer('<%=category._id%>')">Add Offer</button>
+                      <% } %>
                     </td>
                     <td class="text-start">
                       <%if(category.isListed){%>
@@ -199,7 +197,7 @@
                       <%if(category.isListed){%>
                       <button class="btn btn-success" style="width: 70px">
                         <a
-                          href="/admin/listed?id=<%=category._id%>"
+                          href="/admin/listunlist?id=<%=category._id%>"
                           class="text-white"
                           >List</a
                         >
@@ -207,7 +205,7 @@
                       <%}else{%>
                       <button class="btn btn-danger" style="width: 70px">
                         <a
-                          href="/admin/unlisted?id=<%=category._id%>"
+                          href="/admin/listunlist?id=<%=category._id%>"
                           class="text-white"
                           >Unlist</a
                         >
@@ -232,98 +230,209 @@
       <a href="#">Next &raquo;</a>
     </div>
   </section>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 
   <script>
-    function handleFormSubmit(event) {
-      event.preventDefault();
+  async function addOffer(categoryId){
+      const {value:amount}=await Swal.fire({
+        title:"Offer in percentage",
+        input:"number",
+        inputAttributes:{
+        min:0,
+        max:100,
+        },
+        inputLabel:"percentage(0-100)",
+        inputPlaceholder:"%",
+        showCancelButton:true,
+        inputValidator:(value)=>{
+          if(!value){
+            return "you need to enter a percentage"
+          }
+          if(value<0||value>100)
+            return "percentage must be between 0 and 100"
+          else if(value==100){
+            return "Cannot add exact 100 percentage"
+          }
+        }
+      });
 
-      // Validate form before proceeding
-      if (!validateForm()) {
-        return;
+    if(amount){
+      try {
+        const response=await fetch("/admin/addCategoryOffer",{
+          method:"POST",
+          headers:{
+            "content-type":"application/json",
+          },
+          body:JSON.stringify({
+            percentage:amount,
+            categoryId:categoryId,
+          }),
+        });
+
+        const data=await response.json();
+
+        if(response.ok && data.status===true){
+            Swal.fire({
+            title:"Offer Added",
+            text:data.message,
+            icon:"success",
+          }).then((result)=>{
+            if(result.isConfirmed){
+              location.reload()
+            }
+          });
+        }else{
+          Swal.fire("Failed",data.message || "Adding offer failed","error")
+        }
+      } catch (error) {
+        Swal.fire(
+          "Error",
+          "An error occurred",
+          "error"
+        );
+        console.error("error adding offer ",error)
       }
+    }
+  }
 
-      const name = document.getElementsByName("name")[0].value;
-      const description = document.getElementById("descriptionId").value;
-
-      fetch("/admin/addCategory", {
+  function removeOffer(categoryId) {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to remove the offer from this category!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, remove it!",
+    cancelButtonText: "Cancel",
+    timer:5000,
+    timerProgressBar:true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch("/admin/removeCategoryOffer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ categoryId }),
       })
-        .then((response) => {
-          if (!response.ok) {
-            return response.json().then((err) => {
-              throw new Error(err.error);
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status) {
+            Swal.fire({
+              title: "Success",
+              text: "Category offer removed successfully.",
+              icon: "success",
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire({
+              title: "Error",
+              text: data.message || "Failed to remove category offer.",
+              icon: "error",
             });
           }
-          return response.json();
-        })
-        .then((data) => {
-          // Show success message with SweetAlert
-          Swal.fire({
-            icon: "success",
-            title: "Category Added Successfully",
-            text: "The new category has been added to the list.",
-            confirmButtonText: "OK",
-          }).then(() => {
-            // Optionally, reload the page after the success message or redirect
-            location.reload(); // Reload the page to reflect the new category
-          });
         })
         .catch((error) => {
+          console.error("Error:", error);
           Swal.fire({
+            title: "Error",
+            text: "An error occurred while removing the offer.",
             icon: "error",
-            title: "Oops...",
-            text:
-              error.message === "Category already exists"
-                ? "Category already exists"
-                : "An error occurred adding categories",
           });
         });
     }
+  });
+}
 
-    function validateForm() {
-      clearErrorMessages();
-      const name = document.getElementsByName("name")[0].value.trim();
-      const description = document.getElementById("descriptionId").value.trim();
-      let isValid = true;
+      function handleFormSubmit(event) {
+    event.preventDefault();
 
-      if (name === "") {
-        displayErrorMessage("name-error", "Please enter a name");
-        isValid = false;
-      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-        displayErrorMessage(
-          "name-error",
-          "Category name should contain only alphabetic characters"
-        );
-        isValid = false;
+    // Validate form before proceeding
+    if (!validateForm()) {
+        return;
+    }
+
+    const name = document.getElementsByName("name")[0].value;
+    const description = document.getElementById("descriptionId").value;
+
+    fetch("/admin/addCategory", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, description }),
+    })
+        .then((response) => {
+            // Handle errors gracefully
+            if (!response.ok) {
+                return response.json().then((err) => {
+                    throw new Error(err.message || "Unknown error occurred");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Success response:", data);
+
+            if (data.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Category Added Successfully",
+                    text: data.message,
+                    confirmButtonText: "OK",
+                }).then(() => {
+                    // Optionally, reload the page after the success message or redirect
+                    location.reload(); // Reload the page to reflect the new category
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: data.message || "An unknown error occurred.",
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error occurred:", error);
+
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message || "An error occurred while adding the category.",
+            });
+        });
+}
+
+    function validateForm(){
+      let isValid=true
+
+      const nameInput=document.getElementById("product_name")
+      const descriptionInput=document.getElementById("descriptionId")
+
+      const nameError=document.getElementById("name-error")
+      const descriptionError=document.getElementById("description-error")
+      nameError.textContent=""
+      descriptionError.textContent=""
+      if(!nameInput.value.trim()){
+        nameError.textContent="Name is required";
+        isValid=false;
+      }
+      else if(nameInput.value.length<3){
+        nameError.textContent="Name must be atleast 3 Characters Long"
+        isValid=false;
       }
 
-      if (description === "") {
-        displayErrorMessage("description-error", "Please enter a description");
-        isValid = false;
-      }
-
-      return isValid;
+      if (!descriptionInput.value.trim()) {
+      descriptionError.textContent = "Description is required.";
+      isValid = false;
+    } else if (descriptionInput.value.length < 10) {
+      descriptionError.textContent = "Description must be at least 10 characters long.";
+      isValid = false;
     }
 
-    function displayErrorMessage(elementId, message) {
-      var errorElement = document.getElementById(elementId);
-      errorElement.innerText = message;
-      errorElement.style.display = "block";
+    return isValid;
     }
 
-    function clearErrorMessages() {
-      const errorElements = document.getElementsByClassName("error-message");
-      Array.from(errorElements).forEach((element) => {
-        element.innerText = "";
-        element.style.display = "none";
-      });
-    }
   </script>
-</body>
+<%-include("../partials/admin/footer.ejs")%>

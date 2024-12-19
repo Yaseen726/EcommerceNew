@@ -1,0 +1,234 @@
+<%-include("../partials/admin/header.ejs")%>
+
+<style>
+    body {
+        background-color: #f8fafc;
+    }
+    .card-metric {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-metric:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(59,130,246,0.05);
+    }
+    .custom-bg-gradient {
+        background: linear-gradient(135deg, #7cb6b2, #088178);
+    }
+    .custom-text-gradient {
+        background: linear-gradient(135deg, #7cb6b2, #088178);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+<div class="container-fluid px-4 py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">
+                <i class="bi bi-graph-up-arrow text-primary me-3"></i>Sales Report Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header custom-bg-gradient text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-funnel me-2"></i>Filter Sales Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm" method="GET" action="/admin/salesreport">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control border-primary" name="startDate" value="<%= startDate || '' %>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control border-primary" name="endDate" value="<%= endDate || '' %>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quick Filters</label>
+                                <select class="form-select border-primary" name="quickFilter">
+                                    <option value="">Select Period</option>
+                                    <option value="1d" <%= quickFilter === "1d" ? "selected" : "" %>>Last 1 Day</option>
+                                    <option value="1w" <%= quickFilter === "1w" ? "selected" : "" %>>Last 1 Week</option>
+                                    <option value="1m" <%= quickFilter === "1m" ? "selected" : "" %>>Last 1 Month</option>
+                                </select>
+                            </div>
+                            <div class="col-12 text-center mt-3">
+                                <button type="submit" class="btn btn-primary custom-bg-gradient border-0">
+                                    <i class="bi bi-filter me-2"></i>Apply Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Section -->
+    <div class="row mb-4">
+        <% metrics.forEach(metric => { %>
+            <div class="col-md-3 mb-3">
+                <div class="card card-metric border-0 shadow-lg" style="background-color: <%= metric.bgColor %>;">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="<%= metric.icon %> fs-2 me-3" style="color: <%= metric.iconColor %>; "></i>
+                        <div>
+                            <h6 class="card-subtitle mb-1"><%= metric.subtitle %></h6>
+                            <h3 class="card-title mb-0"><%= metric.value %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- Sales Report Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header custom-bg-gradient text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-table me-2"></i>Sales Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Discount</th>
+                                    <th>Coupon</th>
+                                    <th>Final Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% salesData.forEach(order => { %>
+                                    <tr>
+                                        <td class="text-indigo-700"><%= order.id %></td>
+                                        <td><%= new Date(order.invoiceDate).toLocaleString("en-GB") %></td>
+                                        <td>₹<%= order.totalPrice %></td>
+                                        <td class="text-red-600">₹<%= order.discount %></td>
+                                        <td class="text-red-600"><%= order.couponApplied %></td>
+                                        <td class="text-green-700">₹<%= order.finalAmount %></td>
+                                        <td><span class="badge <%= order.status === 'delivered' ? 'bg-success' : 'bg-warning' %>"><%= order.status %></span></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-4">
+            <% if (currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/admin/salesreport?page=<%= currentPage - 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>&quickFilter=<%= quickFilter %>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="/admin/salesreport?page=<%= i %>&startDate=<%= startDate %>&endDate=<%= endDate %>&quickFilter=<%= quickFilter %>"><%= i %></a>
+                </li>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/admin/salesreport?page=<%= currentPage + 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>&quickFilter=<%= quickFilter %>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+
+    <!-- Download Buttons -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="/admin/download-pdf" class="btn btn-danger me-3 shadow-lg">
+                <i class="bi bi-file-pdf me-2"></i>Download PDF
+            </a>
+            <a href="/admin/download-excel" class="btn btn-success shadow-lg">
+                <i class="bi bi-file-excel me-2"></i>Download Excel
+            </a>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+<script>
+    // Function to handle filter form submission
+    document.getElementById("filterForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Get form inputs
+        const startDate = document.querySelector('input[name="startDate"]').value;
+        const endDate = document.querySelector('input[name="endDate"]').value;
+        const quickFilter = document.querySelector('select[name="quickFilter"]').value;
+
+        // Construct URL with query parameters
+        const url = new URL(window.location.origin + "/admin/salesreport");
+        if (startDate) url.searchParams.append("startDate", startDate);
+        if (endDate) url.searchParams.append("endDate", endDate);
+        if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
+
+        // Redirect to the constructed URL
+        window.location.href = url.toString();
+    });
+
+    // Function to handle pagination
+    document.querySelectorAll(".pagination a").forEach(link => {
+        link.addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent default link click
+
+            // Navigate to the page URL
+            window.location.href = this.getAttribute("href");
+        });
+    });
+
+    // Additional feature: Highlight active menu (if applicable)
+    const activeLink = document.querySelector(`.nav-link[href="/admin/salesreport"]`);
+    if (activeLink) {
+        activeLink.classList.add("active");
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
+        const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
+        const loadingIndicator = document.getElementById('loadingIndicator'); // assuming you have a loading indicator
+
+        if (downloadPDFButton) {
+            downloadPDFButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                loadingIndicator.style.display = 'block'; // Show loading indicator
+                window.location.href = '/admin/download-pdf'; // Start PDF download
+            });
+        }
+
+        if (downloadExcelButton) {
+            downloadExcelButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                loadingIndicator.style.display = 'block'; // Show loading indicator
+                window.location.href = '/admin/download-excel'; // Start Excel download
+            });
+        }
+
+    });
+
+</script>

@@ -1,35 +1,35 @@
 <%- include("../../views/partials/admin/header") %>
 <head>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
 <style>
-   .error-message{
-       color: red;
-   }
+.error-message{
+    color: red;
+}
 
 
-       .thumbnails-container {
-           display: flex;
-           overflow-x: auto;
-       }
+    .thumbnails-container {
+        display: flex;
+        overflow-x: auto;
+    }
 
 
-       .thumbnail {
-           margin-right: 10px;
+    .thumbnail {
+        margin-right: 10px;
 
 
-       }
+    }
 </style>
-   <section class="content-main">
-       <div class="row">
-           <div class="col-9">
-               <div class="content-header">
-                   <h2 class="content-title">Add New Product</h2>
-               </div>
-           </div>
-           <div class="col-lg-6">
-               <div class="card mb-4">
-                   <div class="card-body">
+<section class="content-main">
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Add New Product</h2>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body">
                     <% if (error) { %>
                         <div class="alert alert-danger" role="alert">
                             <strong>Error!</strong> <%= error %>
@@ -40,49 +40,49 @@
                             <strong>success!</strong> <%= success %>
                         </div>
                     <%}%>
-                       <form method="post" action="/admin/addProduct" enctype="multipart/form-data" onsubmit="return validateForm()">
-                           <div class="mb-4">
-                               <label for="product_name" class="form-label">Product Name</label>
-                               <input type="text" placeholder="Type here" name="productName"
-                                   class="form-control border" id="product_name">
-                               <div id="productName-error" class="error-message"></div>
-                           </div>
-                           <div class="mb-4">
-                               <label class="form-label">Full description</label>
-                               <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border"
-                                   rows="4"></textarea>
-                               <div id="description-error" class="error-message"></div>
-                           </div>
-                           <div class="row">
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Regular price</label>
-                                       <input placeholder="$" name="regularPrice" type="text"
-                                           class="form-control border">
-                                           <div id="regularPrice-error" class="error-message"></div>
-                                   </div>
-                               </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Sale price</label>
-                                       <input placeholder="$" name="salePrice" type="text" class="form-control border">
-                                      
-                                   </div>
-                                   <div id="salePrice-error" class="error-message"></div>
-                               </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Quantity</label>
-                                       <input placeholder="" name="quantity" type="text" class="form-control border">
-                                       <div id="quantity-error" class="error-message"></div>
-                                   </div>
-                               </div>
-                           </div>
-                           <div class="row">
-                              
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Color</label>
+                    <form method="post" action="/admin/addProduct" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <div class="mb-4">
+                            <label for="product_name" class="form-label">Product Name</label>
+                            <input type="text" placeholder="Type here" name="productName"
+                                class="form-control border" id="product_name">
+                            <div id="productName-error" class="error-message"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Full description</label>
+                            <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border"
+                                rows="4"></textarea>
+                            <div id="description-error" class="error-message"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Regular price</label>
+                                    <input placeholder="$" name="regularPrice" type="text"
+                                        class="form-control border">
+                                        <div id="regularPrice-error" class="error-message"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                            <div class="mb-4">
+                                    <label class="form-label">Sale price</label>
+                                    <input placeholder="$" name="salePrice" type="text" class="form-control border">
+                                    
+                                </div>
+                                <div id="salePrice-error" class="error-message"></div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Quantity</label>
+                                    <input placeholder="" name="quantity" type="text" class="form-control border">
+                                    <div id="quantity-error" class="error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                        
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Color</label>
                                        <input  name="color" type="text" class="form-control border">
                                    </div>
                                    <div id="color-error" class="error-message"></div>

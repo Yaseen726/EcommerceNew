@@ -40,6 +40,7 @@ const User=require("../../models/userSchema")
 const customerInfo=async(req,res)=>{
     try {
         const userData=await User.find({isAdmin:false})
+        console.log(userData)
         res.render("customer-manage",{
             data:userData
         })
@@ -47,31 +48,27 @@ const customerInfo=async(req,res)=>{
         console("error",error)
     }
 }
-const blockuser = async (req, res) => {
-    try {
-        let id = req.query.id;
-        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect("/admin/users"); 
-    } catch (error) {
-        console.error(error); // Log the error for better debugging
-        res.redirect("/pagenotfound");
-    }
-}
 
-const unblockuser = async (req, res) => {
+const UserBlockUnblock=async(req,res)=>{
     try {
-        let id = req.query.id;
-        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect("/admin/users"); // Ensure redirection after unblocking
+        const id=req.query.id
+        const findUser=await User.findOne({_id:id})
+        const state=findUser.isBlocked
+        if(state){
+            await User.updateOne({_id:id},{$set:{isBlocked:false}})
+            res.redirect("/admin/users")
+        }
+        else{
+            await User.updateOne({_id:id},{$set:{isBlocked:true}})
+            res.redirect("/admin/users")
+        }
     } catch (error) {
-        console.error(error); // Log the error for better debugging
-        res.redirect("/pagenotfound");
+        
     }
 }
 
 
 module.exports={
     customerInfo,
-    blockuser,
-    unblockuser
+    UserBlockUnblock
 }

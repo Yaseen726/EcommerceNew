@@ -1,0 +1,170 @@
+<%-include("../partials/user/header.ejs")%>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<style>
+
+.wallet-container {
+max-width: 800px;
+margin: 20px auto;
+padding: 20px;
+background: #ffffff;
+border-radius: 10px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-balance {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px;
+border-bottom: 2px solid #f0f0f0;
+}
+
+
+.balance-info h1 {
+font-size: 32px;
+margin: 0;
+color: #333;
+}
+
+.balance-info p {
+margin: 5px 0 0;
+color: #666;
+}
+
+.add-money-btn {
+padding: 10px 20px;
+  background-color: #4caf34;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+input {
+    border: 1px solid #e2e9e1;
+    border-radius: 10px;
+    height: 45px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding-left: 20px;
+    font-size: 13px;
+    color: #161c27;
+    width: 100%;
+}
+
+.add-money-btn:hover {
+  background-color: #45a049;
+}
+
+.transaction-section h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 24px;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.transaction-table th,
+.transaction-table td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+.adjustments{
+    display: flex;
+    padding-top: 20px;
+}
+
+.transaction-table th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination-btn,
+.page-number {
+padding: 8px 12px;
+margin: 0 5px;
+border: 1px solid #ccc;
+border-radius: 5px;
+background-color: #fff;
+cursor: pointer;
+}
+
+.page-number.active,
+.page-number:hover {
+background-color: #4CAF50;
+color: #fff;
+}
+
+.pagination-btn:hover {
+background-color: #eee;
+}
+</style>
+<body>
+  <div class="wallet-container">
+    <!-- Wallet Balance Section -->
+    <div class="wallet-balance">
+        <div class="wallet-icon">
+            <i class="fa-solid fa-wallet" style="font-size: 48px; color: #4CAF50;"></i>
+        </div>
+        <div class="balance-info">
+            <h1>₹<%= wallet.balance %></h1>
+            <p>My Wallet Balance</p>
+        </div>
+        <form action="/wallet/add-money" method="POST">
+            <input type="number" name="amount" placeholder="Enter amount" min="1" required />
+            <div class="adjustments">
+                <button type="submit" class="add-money-btn">Add Money</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Transaction Details Section -->
+    <div class="transaction-section">
+        <h2>Transaction Details</h2>
+        <table class="transaction-table">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Withdrawal</th>
+                    <th>Deposit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (wallet.transactions.length > 0) { %>
+                    <% wallet.transactions.forEach(transaction => { %>
+                        <tr>
+                            <td>#<%= transaction._id %></td>
+                            <td><%= transaction.type === 'credit' ? 'Deposit' : 'Withdrawal' %></td>
+                            <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                            <td><%= transaction.type === 'debit' ? `₹${transaction.amount}` : '-' %></td>
+                            <td><%= transaction.type === 'credit' ? `₹${transaction.amount}` : '-' %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">No transactions found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<%-include("../partials/user/footer.ejs")%>

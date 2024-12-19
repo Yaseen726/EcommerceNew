@@ -3997,7 +3997,7 @@ body.offcanvas-active {
 .main-header {
   padding-left: 3%;
   padding-right: 3%;
-  min-height: 72px;
+  min-height: 99px;
   background-color: #fff;
   -webkit-box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
           box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);

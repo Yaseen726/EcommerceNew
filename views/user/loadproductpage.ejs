@@ -1,0 +1,53 @@
+<%-include("../partials/user/header.ejs")%>
+<section id="products-page">
+    <div class="container">
+      <div class="products-controls">
+        <!-- Sorting Dropdown -->
+        <label for="sort-by" class="sort-label">Sort by:</label>
+        <select id="sort-by" class="sort-select" onchange="handleSortChange()">
+          <option value="default" <%= sortOption === 'default' ? 'selected' : '' %>>Default</option>
+          <option value="popularity" <%= sortOption === 'popularity' ? 'selected' : '' %>>Popularity</option>
+          <option value="price-low-high" <%= sortOption === 'price-low-high' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="price-high-low" <%= sortOption === 'price-high-low' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="rating" <%= sortOption === 'rating' ? 'selected' : '' %>>Average Rating</option>
+          <option value="new-arrivals" <%= sortOption === 'new-arrivals' ? 'selected' : '' %>>New Arrivals</option>
+          <option value="alphabetical-a-z" <%= sortOption === 'alphabetical-a-z' ? 'selected' : '' %>>Alphabetical (A-Z)</option>
+          <option value="alphabetical-z-a" <%= sortOption === 'alphabetical-z-a' ? 'selected' : '' %>>Alphabetical (Z-A)</option>
+        </select>
+      </div>
+  
+      <!-- Product Grid -->
+      <div class="product-grid">
+        <% products.forEach(product => { %>
+          <div class="product-card">
+            <a href="/productdetails?id=<%= product._id %>">
+              <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+            </a>
+            <h3><%= product.productName %></h3>
+            <p>₹ <%= product.salePrice.toLocaleString() %></p>
+          </div>
+        <% }); %>
+      </div>
+  
+      <!-- Pagination Controls -->
+      <div class="pagination">
+        <% if (pagination.hasPreviousPage) { %>
+          <a href="/products?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>&category=<%= selectedCategory %>&sort=<%= sortOption %>">Previous</a>
+        <% } %>
+        <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+        <% if (pagination.hasNextPage) { %>
+          <a href="/products?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>&category=<%= selectedCategory %>&sort=<%= sortOption %>">Next</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+  
+  <script>
+    function handleSortChange() {
+      const sortOption = document.getElementById("sort-by").value;
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.set("sort", sortOption);
+      window.location.search = urlParams.toString();
+    }
+  </script>
+  

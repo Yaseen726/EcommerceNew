@@ -1,0 +1,158 @@
+<%-include("../partials/admin/header.ejs")%>
+
+<style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Arial', sans-serif;
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    .card-header {
+      background: linear-gradient(to right, #4edf7a 0%, #224abe 100%);
+      padding: 20px;
+    }
+    .card-header h2 {
+      margin-bottom: 0;
+      color: white;
+      font-weight: 600;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #5a5a5a;
+    }
+    .form-control {
+      border-radius: 10px;
+      padding: 12px;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .btn-success {
+      background: linear-gradient(to right, #1eb35c 0%, #27ae60 100%);
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    .btn-success:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #27ae60 0%, #2ecc71 100%);
+    }
+  </style>
+
+
+<div class="container mt-3">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white text-center">
+            <h2>Create New Coupon</h2>
+          </div>
+          <div class="card-body">
+            <form action="/admin/coupons" method="POST" id="couponForm">
+              <!-- Coupon Name -->
+              <div class="mb-3">
+                <label for="name" class="form-label">Coupon Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter coupon code" required>
+              </div>
+
+              <!-- Expiration Date -->
+              <div class="mb-3">
+                <label for="expireOn" class="form-label">Expiration Date</label>
+                <input type="date" class="form-control" id="expireOn" name="expireOn" required>
+              </div>
+
+              <!-- Offer Price -->
+              <div class="mb-3">
+                <label for="offerPrice" class="form-label">Discount Amount</label>
+                <input type="number" class="form-control" id="offerPrice" name="offerPrice" placeholder="Enter discount amount" required>
+              </div>
+
+              <!-- Minimum Purchase Amount -->
+              <div class="mb-3">
+                <label for="minimumPrice" class="form-label">Minimum Purchase Amount</label>
+                <input type="number" class="form-control" id="minimumPrice" name="minimumPrice" placeholder="Enter minimum order value" required>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-center">
+                <button type="submit" class="btn btn-success">Create Coupon</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+
+  <script>
+    document.getElementById('couponForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent the form from refreshing the page
+
+      // Collect form data
+      const formData = {
+        name: document.getElementById('name').value,
+        expireOn: document.getElementById('expireOn').value,
+        offerPrice: document.getElementById('offerPrice').value,
+        minimumPrice: document.getElementById('minimumPrice').value,
+        
+      };
+      console.log(document.getElementById('offerPrice').value,"this is discount amount field in frontend  it is set as offerprice in backend ")
+      console.log(document.getElementById('minimumPrice').value,"this is minimum purchase amount field in frontend and set minimumPrice in backend")
+      
+
+      try {
+        // Send the form data to the server using fetch
+        const response = await fetch('/admin/coupons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Show success SweetAlert
+          Swal.fire({
+            icon: 'success',
+            title: 'Coupon Created',
+            text: result.message,
+            confirmButtonText: 'OK',
+          }).then(() => {
+            // Optionally reset the form after success
+            document.getElementById('couponForm').reset();
+          });
+        } else {
+          // Show error SweetAlert
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: result.message || 'Failed to create coupon.',
+            confirmButtonText: 'Try Again',
+          });
+        }
+      } catch (error) {
+        // Handle any unexpected errors
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An unexpected error occurred.',
+          confirmButtonText: 'Try Again',
+        });
+        console.error(error);
+      }
+    });
+  </script>

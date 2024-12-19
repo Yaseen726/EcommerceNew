@@ -75,7 +75,8 @@ const userSchema=new Schema({
     searchOn:{
         type:Date,
         default:Date.now
-    }
+    },
+    walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" }
 
 })
 

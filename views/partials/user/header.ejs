@@ -22,6 +22,7 @@
     href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css"
     rel="stylesheet"
   />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   </head>
   <header class="header-area header-style-1 header-height-2">
     <div class="header-top header-top-ptb-1 d-none d-lg-block">
@@ -95,7 +96,7 @@
                 <% if (locals.user) { %>
                   <li>
                     <i class="fi-rs-user"></i>
-                    <a href="/profile"><%= locals.user.name %></a> <!-- Assuming the profile link should lead to "/profile" -->
+                    <a href="/"><%= locals.user.name %></a> <!-- Assuming the profile link should lead to "/profile" -->
                   </li>
                   <li>
                     <i class="fi-rs-user"></i>
@@ -104,6 +105,10 @@
                   <li>
                     <i class="fi-rs-user"></i>
                     <a href="/logout">Logout</a> <!-- Assuming logout route is "/logout" -->
+                  </li>
+                  <li>
+                    <i class="fas fa-wallet"></i>
+                    <a href="/wallet">Wallet</a>
                   </li>
                 <% } else { %>
                   <li>
@@ -135,26 +140,14 @@
           <div class="header-right">
             <div class="search-style-2">
               <form action="#">
-                <select class="select-active">
-                  <option>All Categories</option>
-                  <option>Women's</option>
-                  <option>Men's</option>
-                  <option>Cellphones</option>
-                  <option>Computer</option>
-                  <option>Electronics</option>
-                  <option>Accessories</option>
-                  <option>Home & Garden</option>
-                  <option>Luggage</option>
-                  <option>Shoes</option>
-                  <option>Mother & Kids</option>
-                </select>
-                <input type="text" placeholder="Search for items..." />
+
+          <!--this is the middle part where search bar of header--->
               </form>
             </div>
             <div class="header-action-right">
               <div class="header-action-2">
                 <div class="header-action-icon-2">
-                  <a href="shop-wishlist.html">
+                  <a href="/wishlist">
                     <img
                       class="svgInject"
                       alt="Evara"

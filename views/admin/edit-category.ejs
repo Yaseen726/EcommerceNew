@@ -1,52 +1,148 @@
 <%- include("../../views/partials/admin/header.ejs") %>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 mt-60">
-            <form method="post" action="/admin/editcategory/<%= category._id %>">
-                <div class="d-grid text-end mt-30 col-md-5">
-                    <button class="btn btn-primary" type="submit">Update category</button>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+    <style>
+    .is-invalid {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    }
+    </style>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header text-white">
+                        <h4 class="text-center mb-0">Edit Category</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/editcategory?id=<%= category._id %>" id="editCategoryForm">
+                             <input type="hidden" name="id" value="<%= category._id %>"/>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Category Name</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="name" 
+                                    name="name" 
+                                    value="<%= category.name %>" 
+                                    placeholder="Enter category name"
+                                    required
+                                >
+                                <small class="text-danger" id="nameError"></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea 
+                                    class="form-control" 
+                                    id="description" 
+                                    name="description" 
+                                    rows="4" 
+                                    placeholder="Enter category description"
+                                    required
+                                ><%= category.description %></textarea>
+                                <small class="text-danger" id="descriptionError"></small>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button 
+                                    type="submit" 
+                                    class="btn btn-primary"
+                                >
+                                    Update Category
+                                </button>
+                                <a 
+                                    href="/admin/category" 
+                                    class="btn btn-outline-secondary"
+                                >
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="mb-4 mt-30">
-                    <label for="product_name" class="form-label">Name</label>
-                    <input type="text" name="name" value="" class="form-control border" />
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control border"></textarea>
-                </div>
-                <%if(message){%>
-                  <p><%=message%></p>
-                <%}%>
-            </form>
+            </div>
         </div>
     </div>
-</div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script>
-    document.getElementById('editCategoryForm').addEventListener('submit', function (event) {
-        
-        const categoryName = document.querySelector('input[name="categoryName"]').value.trim();
-        const description = document.querySelector('textarea[name="description"]').value.trim();
 
-        // Clear any previous error messages
-        document.getElementById('categoryNameError').innerText = '';
-        document.getElementById('descriptionError').innerText = '';
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("editCategoryForm");
 
-        let hasError = false;
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        let isValid = true;
 
-        if (!categoryName) {
-            document.getElementById('categoryNameError').innerText = 'Category name is required.';
-            hasError = true;
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const nameError = document.getElementById("nameError");
+        const descriptionError = document.getElementById("descriptionError");
+
+        nameError.textContent = "";
+        descriptionError.textContent = "";
+
+        // Validation checks
+        if (name.length < 3 || name.length > 50) {
+            nameError.textContent = "Name must be between 3 and 50 characters";
+            isValid = false;
+        }
+        if (description.length < 10) {
+            descriptionError.textContent = "Description must be at least 10 characters";
+            isValid = false;
         }
 
-        if (!description) {
-            document.getElementById('descriptionError').innerText = 'Description is required.';
-            hasError = true;
+        if (!isValid) {
+            console.log("Validation failed");
+            return;
         }
 
-        if (hasError) {
-            event.preventDefault();
-        }
+        // Fetch request
+        const formData = new FormData(form);
+        const categoryId = "<%= category._id %>"; // Replace dynamically from EJS
+        const url = `/admin/editcategory?id=${categoryId}`;
+
+        fetch(url, {
+            method: "POST",
+            body: formData,
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Fetch response:", data);
+                if (data.success) {
+                    Swal.fire({
+                        title: "Success",
+                        text: "Category updated successfully",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    }).then(() => {
+                        window.location.href = "/admin/category";
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: data.message || "Something went wrong!",
+                        icon: "error",
+                        confirmButtonText: "Try Again",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "An error occurred while updating the category",
+                    icon: "error",
+                    confirmButtonText: "Try Again",
+                });
+            });
     });
+});
+
 </script>

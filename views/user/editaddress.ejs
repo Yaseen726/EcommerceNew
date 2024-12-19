@@ -1,114 +1,217 @@
-<%- include("../partials/user/header.ejs") %>
+s<%-include("../partials/user/header.ejs") %>
+
 <style>
-  /* Container styles */
-  .edit-address-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 25px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Title styles */
-  .edit-address-title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  /* Form styles */
-  .edit-address-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-  }
-
-  .form-group input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-  .form-group input:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-
-  /* Button styles */
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .btn-save {
-    padding: 10px 20px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background 0.3s ease;
-  }
-
-  .btn-save:hover {
-    background: #0056b3;
-  }
+    .pt-150 { padding-top: 150px; }
+    .pb-150 { padding-bottom: 150px; }
+    .p-30 { padding: 30px; }
+    .mb-30 { margin-bottom: 30px; }
+    .background-white { background: #fff; }
+    .border-radius-5 { border-radius: 5px; }
+    .padding_eight_all { padding: 8%; }
+    .form-group { margin-bottom: 1rem; }
+    .btn-fill-out {
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #333;
+        padding: 10px 20px;
+    }
+    .btn-fill-out:hover {
+        background-color: #555;
+        border-color: #555;
+        color: #fff;
+    }
+    .widget-taber-content { box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+    .heading_s1 h3 {
+        font-weight: 600;
+        font-size: 24px;
+    }
+    .error { color: red; }
 </style>
 
-<div class="edit-address-container">
-  <h2 class="edit-address-title">Edit Address</h2>
-  <form action="/address/edit/?id=<%= address._id %>" method="POST" class="edit-address-form">
-    <div class="form-group">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" value="<%= address.name %>" required />
-    </div>
-    <div class="form-group">
-      <label for="city">City:</label>
-      <input type="text" id="city" name="city" value="<%= address.city %>" required />
-    </div>
-    <div class="form-group">
-      <label for="landmark">Landmark:</label>
-      <input type="text" id="landmark" name="landmark" value="<%= address.landmark %>" />
-    </div>
-    <div class="form-group">
-      <label for="state">State:</label>
-      <input type="text" id="state" name="state" value="<%= address.state %>" required />
-    </div>
-    <div class="form-group">
-      <label for="pincode">Pincode:</label>
-      <input type="number" id="pincode" name="pincode" value="<%= address.pincode %>" required />
-    </div>
-    <div class="form-group">
-      <label for="phone">Phone:</label>
-      <input type="text" id="phone" name="phone" value="<%= address.phone %>" required />
-    </div>
-    <div class="form-group">
-      <label for="altphone">Alt Phone:</label>
-      <input type="text" id="altphone" name="altphone" value="<%= address.altphone %>" />
-    </div>
-    <div class="form-actions">
-      <button type="submit" class="btn-save">Save Changes</button>
-    </div>
-  </form>
-</div>
+<section class="pt-150 pb-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 m-auto">
+                <div class="address_wrap widget-taber-content p-30 background-white border-radius-5">
+                    <div class="padding_eight_all bg-white">
+                        <div class="heading_s1">
+                            <h3 class="mb-30">Edit Address</h3>
+                        </div>
 
-<>
+                        <form id="addressForm" method="post" action="/address/edit">
+                          <input type="hidden" name="addressId" value="<%= address._id %>">
+                          <input type="hidden" name="userId" id="userId" value="<%= user._id %>">
+                      
+                          <!-- Address Type -->
+                          <div class="form-group">
+                              <label for="addressType">Address Type</label>
+                              <select id="addressType" name="addresstype" class="form-control">
+                                  <option value="Home" <%= address.addresstype === "Home" ? "selected" : "" %>>Home</option>
+                                  <option value="Office" <%= address.addresstype === "Office" ? "selected" : "" %>>Office</option>
+                                  <option value="Other" <%= address.addresstype === "Other" ? "selected" : "" %>>Other</option>
+                              </select>
+                              <span id="addressTypeErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Name -->
+                          <div class="form-group">
+                              <label for="name">Name</label>
+                              <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" value="<%= address.name %>">
+                              <span id="nameErr" class="error"></span>
+                          </div>
+                      
+                          <!-- State -->
+                          <div class="form-group">
+                              <label for="state">State</label>
+                              <input type="text" id="state" name="state" class="form-control" placeholder="Enter your state" value="<%= address.state %>">
+                              <span id="stateErr" class="error"></span>
+                          </div>
+                      
+                          <!-- City -->
+                          <div class="form-group">
+                              <label for="city">City</label>
+                              <input type="text" id="city" name="city" class="form-control" placeholder="Enter your city" value="<%= address.city %>">
+                              <span id="cityErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Landmark -->
+                          <div class="form-group">
+                              <label for="landMark">Landmark</label>
+                              <input type="text" id="landMark" name="landmark" class="form-control" placeholder="Enter a nearby landmark" value="<%= address.landmark %>">
+                              <span id="landMarkErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Pincode -->
+                          <div class="form-group">
+                              <label for="pincode">Pincode</label>
+                              <input type="text" id="pincode" name="pincode" class="form-control" placeholder="Enter your pincode" value="<%= address.pincode %>">
+                              <span id="pincodeErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Phone -->
+                          <div class="form-group">
+                              <label for="phone">Phone</label>
+                              <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" value="<%= address.phone %>">
+                              <span id="phoneErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Alternate Phone -->
+                          <div class="form-group">
+                              <label for="altPhone">Alternate Phone</label>
+                              <input type="text" id="altPhone" name="altphone" class="form-control" placeholder="Enter your alternate phone number" value="<%= address.altphone %>">
+                              <span id="altPhoneErr" class="error"></span>
+                          </div>
+                      
+                          <!-- Submit Button -->
+                          <div class="form-group">
+                              <button type="submit" class="btn btn-fill-out btn-block hover-up w-100">Save Address</button>
+                          </div>
+                      </form>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JS Includes -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+
+
+
+<script>
+  document.getElementById('addressForm').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      // Validate form
+      if (!validateAddressForm()) return; // Exit if validation fails
+
+      // Get form data
+      const formData = new FormData(this);
+
+      try {
+          // Send the form data using fetch
+          const response = await fetch('/address/edit', {
+              method: 'POST',
+              body: new URLSearchParams(formData), // Convert FormData to URL-encoded string
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded' // Ensure content type matches the backend's expectations
+              }
+          });
+
+          // Parse the JSON response
+          const result = await response.json();
+
+          if (response.ok) {
+              // Handle success
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Success!',
+                  text: result.message,
+                  confirmButtonText: 'OK'
+              }).then(() => {
+                  window.location.href = '/account'; // Redirect on success
+              });
+          } else {
+              // Handle server errors
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: result.message || 'An error occurred.',
+                  confirmButtonText: 'Try Again'
+              });
+          }
+      } catch (error) {
+          // Handle fetch errors
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to communicate with the server. Please try again.',
+              confirmButtonText: 'Try Again'
+          });
+      }
+  });
+
+  // Form Validation Function
+  function validateAddressForm() {
+      let isValid = true;
+      const fields = ['name', 'city', 'state', 'landMark', 'pincode', 'phone', 'altPhone'];
+      
+      // Clear previous errors
+      fields.forEach(field => document.getElementById(`${field}Err`).textContent = '');
+
+      const validations = {
+          name: 'Name is required.',
+          city: 'City is required.',
+          state: 'State is required.',
+          landMark: 'Landmark is required.',
+          pincode: 'Pincode must be 6 digits.',
+          phone: 'Phone number must be 10 digits.',
+          altPhone: 'Alternate phone number must be 10 digits.'
+      };
+
+      fields.forEach(field => {
+    const value = document.getElementById(field).value.trim();
+
+    if (field === 'altPhone') {
+        // Validate altPhone only if it's not empty
+        if (value !== '' && !/^\d{10}$/.test(value)) {
+            document.getElementById(`${field}Err`).textContent = validations[field];
+            isValid = false;
+        }
+    } else {
+        // Validate all other fields
+        if (value === '' || 
+           (field === 'pincode' && !/^\d{6}$/.test(value)) || 
+           (field === 'phone' && !/^\d{10}$/.test(value))) {
+            document.getElementById(`${field}Err`).textContent = validations[field];
+            isValid = false;
+        }
+    }
+});
+
+      return isValid;
+  }
+</script>

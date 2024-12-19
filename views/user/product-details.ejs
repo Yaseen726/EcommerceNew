@@ -135,35 +135,7 @@
             text-decoration: none;
         }
 
-        .coupon-section {
-        margin-top: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 14px;
-    }
 
-    .coupon-section input {
-        flex: 1;
-        padding: 6px 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .coupon-section button {
-        padding: 6px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.2s;
-    }
-
-    .coupon-section button:hover {
-        background-color: #0056b3;
-    }
     </style>
 
 
@@ -280,17 +252,14 @@
                                     <form id="add-to-cart-<%= product._id %>" action="/addtocart?id=<%= product._id %>" method="POST" style="display: inline;">
                                         <input type="hidden" name="quantity" id="cart-quantity-<%= product._id %>" value="1">
                                         <button type="submit" class="btn btn-success">Add to cart</button>
-                                    </form>
-                                    <button type="button" aria-label="Add To Wishlist" class="action-btn hover-up"
-                                        onclick="">
+                                      </form>
+                                     <!--it is buy now button-->
+                                      <div>
+                                        <a href="cart/checkout?id=<%= product._id %>" class="btn btn-success">Buy Now</a>
+                                      </div>
+                                      <button class="action-btn wishlist-btn" onclick="addToWishlist('<%= product._id %>')">
                                         <i class="fi-rs-heart"></i>
                                     </button>
-                                </div>
-                                <a href="">Buy Now</a>
-                            </div>
-                            <div class="coupon-section">
-                                <input type="text" placeholder="Enter coupon code" id="couponCode">
-                                <button type="button">Apply</button>
                             </div>
                             <% } else { %>
                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
@@ -299,8 +268,9 @@
                                     <div class="product-extra-link2 d-inline-block">
                                         <button type="button" class="button button-add-to-cart" disabled
                                             style="background-color: #d3d3d3; cursor: not-allowed;">Sold Out</button>
-                                        <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i
-                                                class="fi-rs-heart"></i></a>
+                                            <button class="action-btn wishlist-btn" onclick="addToWishlist('<%= product._id %>')">
+                                                <i class="fi-rs-heart"></i>
+                                            </button>
                                     </div>
                                 </div>
                                 <% } %>
@@ -429,6 +399,8 @@ qtyDown.addEventListener("click", () => {
   }
 });
 
+//buy now 
+
 const addToCartForms = document.querySelectorAll('form[action^="/addtocart"]');
 
 addToCartForms.forEach((form) => {
@@ -471,6 +443,44 @@ addToCartForms.forEach((form) => {
         }
     });
 });
+
+
+async function addToWishlist(productId) {
+    try {
+        const response = await fetch('/wishlist/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Product added to your wishlist.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                title: 'Oops!',
+                text: result.message || 'Failed to add to wishlist.',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Something went wrong. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+
     </script>
 
 

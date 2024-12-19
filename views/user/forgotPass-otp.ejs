@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Login - eCommerce</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="evara-frontend/assets/imgs/theme/favicon.svg" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="evara-frontend/assets/css/main.css?v=3.4" />
+</head>
+
+<style>
+    /* Overall Page Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    /* OTP Container Styling */
+    .otp-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    /* Header Styling */
+    .otp-header {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .otp-description {
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+
+    /* Timer Styling */
+    .otp-timer-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .otp-timer {
+        font-size: 14px;
+        color: #666666;
+        background-color: #f9f9f9;
+        padding: 5px 10px;
+        border-radius: 8px;
+    }
+
+    /* Resend Button Styling */
+    .resend-button {
+        font-size: 14px;
+        color: #4CAF50;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .resend-button:hover {
+        color: #45a049;
+    }
+
+    /* Alert Styling */
+    .alert-danger {
+        width: 100%;
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    /* Footer Link Styling */
+    .footer-text {
+        font-size: 14px;
+        color: #666666;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .footer-text a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+
+    .footer-text a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="otp-container">
+    <h3 class="otp-header">Email Verification</h3>
+    <p class="otp-description">Enter the OTP sent to your registered email to verify your account.</p>
+
+    <form action="/verify-forgotpass-otp" method="post" onsubmit="return validateOTPForm()">
+        <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" />
+        <button type="submit" class="btn btn-primary">Verify OTP</button>
+    </form>
+
+    <div class="otp-timer-wrapper">
+        <span class="otp-timer" id="timerValue">00:30</span>
+    </div>
+
+    <button type="button" class="resend-button" onclick="resendOtp()">Resend OTP</button>
+
+    <% if (locals.message && message.length > 0) { %>
+        <div class="alert alert-danger">
+            <%= message %>
+        </div>
+    <% } %>
+
+    <div class="footer-text">
+        Already verified? <a href="/login">Login now</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Vendor JS -->
+<script src="evara-frontend/assets/js/vendor/jquery-3.6.0.min.js"></script>
+<script src="evara-frontend/assets/js/vendor/bootstrap.bundle.min.js"></script>
+<!-- Template JS -->
+<script src="evara-frontend/assets/js/main.js?v=3.4"></script>
+
+<script>
+    document.getElementById("otp").focus();
+
+    let timer = 60;
+    let timerInterval;
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timer--;
+            document.getElementById("timerValue").textContent = timer;
+            if (timer <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById("timerValue").classList.add("expired");
+                document.getElementById("timerValue").textContent = "Expired";
+                document.getElementById("otp").disabled = true;
+            }
+        }, 1000);
+    }
+    startTimer();
+
+    function validateOTPForm() {
+        const otp = document.getElementById("otp").value.trim();
+
+        $.ajax({
+            type: "POST",
+            url: "/verify-forgotpass-otp",
+            data: { otp: otp },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP verified successfully",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    }).then(() => {
+                        window.location.href = response.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: response.message,
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid OTP",
+                    text: "Please try again",
+                });
+            },
+        });
+        return false;
+    }
+
+    function resendOtp() {
+        clearInterval(timerInterval); // Stop the previous timer
+        timer = 60; // Reset the timer correctly
+        document.getElementById("otp").disabled = false; // Enable OTP input again
+        document.getElementById("timerValue").classList.remove("expired");
+        document.getElementById("timerValue").textContent = timer; // Reset the display value
+        startTimer(); // Start the timer again
+
+        // Send AJAX request to resend OTP
+        $.ajax({
+            type: "POST",
+            url: "/resend-forgot-otp",
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP Resent Successfully",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "An error occurred while resending OTP. Please try again.",
+                    });
+                }
+            },
+        });
+
+        return false; // Prevent form submission
+    }
+</script>
+
+</html>

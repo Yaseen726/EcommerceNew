@@ -1,0 +1,163 @@
+<%- include("../partials/admin/header.ejs") %>
+
+<div class="container mt-4">
+    <h2>Orders Management</h2>
+    <% if (orders && orders.length > 0) { %>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Items Ordered</th>
+                    <th>Total Price</th>
+                    <th>Final Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <!-- Order ID -->
+                        <td><%= order.orderId %></td>
+
+                        <!-- Customer Name -->
+                        <td>
+                            <% if (order.userId) { %>
+                                <strong><%= order.userId.name %></strong>
+                            <% } else { %>
+                                <span class="text-danger">Customer not found</span>
+                            <% } %>
+                        </td>
+
+                        <!-- Ordered Items -->
+                        <td>
+                            <% order.orderedItem.forEach(item => { %>
+                                <p>
+                                    <strong>Product:</strong> <%= item.product?.productName || "Unknown" %><br>
+                                </p>
+                            <% }); %>
+                        </td>
+
+                        <!-- Total Price -->
+                        <td>₹<%= order.totalPrice.toFixed(2) %></td>
+
+                        <!-- Final Amount -->
+                        <td>₹<%= order.finalAmount.toFixed(2) %></td>
+
+                        <!-- Status -->
+                        <td>
+                            <span
+                                class="badge 
+                                <%= order.status === 'delivered' ? 'bg-success' : 
+                                    (order.status === 'cancelled' ? 'bg-danger' : 'bg-warning') %>"
+                            >
+                                <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                            </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <form id="update-order-<%= order.orderId %>" onsubmit="event.preventDefault(); updateOrderStatus('<%= order.orderId %>')">
+                                <input type="hidden" name="orderId" value="<%= order.orderId %>">
+                                <select id="status-<%= order.orderId %>" name="status" class="form-select form-select-sm mb-2">
+                                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                                    <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit || 10 %>">Previous</a>
+                    </li>
+                <% } %>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>&limit=<%= limit || 10 %>"><%= i %></a>
+                    </li>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit || 10 %>">Next</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+
+    <% } else { %>
+        <p class="text-center text-muted">No orders found</p>
+    <% } %>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+<script>
+async function updateOrderStatus(orderId) {
+    const status = document.getElementById(`status-${orderId}`).value;
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `You are about to update the status to "${status}"`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'No, cancel',
+        reverseButtons: true
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/updateorderstatus`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId, status })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success',
+                        text: data.message || 'Order status updated successfully',
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message || 'An error occurred while updating order status',
+                        icon: 'error',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while updating order status',
+                    icon: 'error',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        }
+    });
+}
+</script>
