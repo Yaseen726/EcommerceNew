@@ -23,7 +23,7 @@ const LoadWallet = async (req, res) => {
   
       // Access the wallet directly from the populated user document
       const wallet = user.walletId;
-      res.render("wallet", { wallet });
+      res.render("Wallet", { wallet });
     } catch (error) {
       console.error("Error fetching wallet data:", error);
       res.status(500).send("Internal Server Error");
