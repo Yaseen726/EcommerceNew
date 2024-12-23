@@ -8,84 +8,131 @@ const Product =require("../../models/productSchema")
 const Address=require("../../models/addressSchema")
 const Wallet=require("../../models/walletSchema")
 
-//loading loadHomepage
-// const loadHomepage = async (req, res) => {
-//   try {
-//     const user = req.session.user;
-//     const categories = await Category.find({ isListed: true });
 
-//     let productData = await Product.find({
-//       isBlocked: false,
-//       category: { $in: categories.map(category => category._id) },
-//     });
+//search filter includede homepage
 
-//     productData = productData.map(product => ({
-//       ...product._doc,
-//       isOutOfStock: product.quantity === 0, // Add the flag for out-of-stock products
-//     }));
-
-//     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-
-//     // Get the first 4 products after sorting
-//     productData = productData.slice(0, 5);
-
-//     if (user) {
-//       const userData = await User.findById(user);
-//       res.render("home", { products: productData });
-//     } else {
-//       res.render("home", { products: productData });
-//     }
-//   } catch (error) {
-//     console.log("Home page not found:", error);
-//     res.status(500).send("Server error");
-//   }
-// };
 const loadHomepage = async (req, res) => {
   try {
     const user = req.session.user;
-    const googleauthuser=req.session?.passport?.user
-    console.log(user,"normal login")
-    console.log(googleauthuser,"google auth user")
-    const categories = await Category.find({ isListed: true });
-    let productData = await Product.find({
-      isBlocked: false,
-      category: { $in: categories.map(category => category._id) },
-    });
+    const googleauthuser = req.session?.passport?.user;
 
+    // Fetch the categories
+    const categories = await Category.find({ isListed: true });
+
+    // Get the category filter from the query string (default is 'all-categories')
+    const categoryFilter = req.query.category || 'all-categories';
+    const searchQuery = req.query.query || '';  // Get the search query
+    let productData;
+
+    // Search by product name or description
+    if (searchQuery) {
+      productData = await Product.find({
+        isBlocked: false,
+        category: { $in: categories.map(category => category._id) },
+        $or: [
+          { productName: { $regex: searchQuery, $options: 'i' } },  // Case-insensitive search by product name
+          { description: { $regex: searchQuery, $options: 'i' } }    // Case-insensitive search by product description
+        ]
+      });
+    } else {
+      productData = await Product.find({
+        isBlocked: false,
+        category: { $in: categories.map(category => category._id) },
+      });
+    }
+
+    // Add the out-of-stock flag
     productData = productData.map(product => ({
       ...product._doc,
-      isOutOfStock: product.quantity === 0, // Add the flag for out-of-stock products
+      isOutOfStock: product.quantity === 0,
     }));
 
     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
 
-    // Get the first 5 products after sorting
+    // Get the first 7 products after sorting
     productData = productData.slice(0, 7);
-  console.log(user,"this is user ")
-    if (user ||googleauthuser) {
-      let userData
-      if(user){
+
+    // Handle user data
+    let userData;
+    if (user) {
       userData = await User.findById(user);
-      }else
-      {
-        userData=await User.findById(googleauthuser)
-      }
-      res.locals.user=userData
-      console.log(res.locals.user)
-      res.render("home", { products: productData, user: userData });
-    } else {
-    res.locals.user=null
-      res.render("home", { products: productData });
+    } else if (googleauthuser) {
+      userData = await User.findById(googleauthuser);
     }
+
+    res.locals.user = userData;
+
+    // Render the homepage with filtered products
+    res.render("home", {
+      products: productData,
+      user: userData,
+      categories: categories,
+      categoryFilter: categoryFilter,
+      searchQuery: searchQuery
+    });
+
   } catch (error) {
-    console.log("Error loading homepage:", error);  // Log detailed error
+    console.log("Error loading homepage:", error);
     res.status(500).send("Server error");
   }
 };
 
 
+const catFilter = async (req, res) => {
+  try {
 
-//sorting
+    const category = req.query.category;
+    let products;
+
+    if (category === 'all-categories') {
+      products = await Product.find({});
+    } else {
+      products = await Product.find({ category: category});
+    }
+
+    res.json({ products });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching products' });
+  }
+};
+
+
+//search products
+
+const searchProducts = async (req, res) => {
+  try {
+    const searchQuery = req.query.query || '';  // Get the search query
+
+    let products;
+    if (searchQuery) {
+      products = await Product.find({
+        isBlocked: false,
+        $or: [
+          { productName: { $regex: searchQuery, $options: 'i' } },  // Case-insensitive search by product name
+          { description: { $regex: searchQuery, $options: 'i' } }    // Case-insensitive search by product description
+        ]
+      });
+    } else {
+      products = await Product.find({ isBlocked: false });
+    }
+
+    // Send a clearer message if no products were found
+    if (products.length === 0) {
+      return res.status(200).json({ message: 'No products found', products });
+    }
+
+    res.json({ products });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching products' });
+  }
+};
+
+//sort products
+
 const sortProduct = async (req, res) => {
   try {
     const sortOption = req.query.sort || 'default';
@@ -93,17 +140,11 @@ const sortProduct = async (req, res) => {
     let sortCriteria;
 
     switch (sortOption) {
-      case 'popularity':
-        sortCriteria = { popularity: -1 };
-        break;
       case 'price-low-high':
         sortCriteria = { salePrice: 1 };
         break;
       case 'price-high-low':
         sortCriteria = { salePrice: -1 };
-        break;
-      case 'rating':
-        sortCriteria = { rating: -1 };
         break;
       case 'new-arrivals':
         sortCriteria = { createdAt: -1 };
@@ -125,11 +166,6 @@ const sortProduct = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-
-//product page
-
-
 
 
 //page error
@@ -316,6 +352,7 @@ const logout=async(req,res)=>{
       if(req.session.user){
       req.session.user=null
       }
+      console.log(req.session,"session after logout")
       return res.redirect("/login")
     }
     catch (error) {
@@ -454,6 +491,8 @@ module.exports = {
   verifyForgotOtp,
   getResetPassPage,
   resendOtp,
-  resetPassword
+  resetPassword,
+  catFilter,
+  searchProducts
 
 };

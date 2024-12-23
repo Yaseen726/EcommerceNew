@@ -23,13 +23,30 @@ router.get("/signup",userController.loadsignup);
 router.post("/signup",userController.signup)
 router.post("/verify-otp",userController.verifyotp)
 router.post("/resend-otp",userController.resendotp)
-router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
-router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/signup"}),(req,res)=>{
-    console.log(req.user,"req from the callback")
-    res.redirect("/")
-})
+// router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
+// router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/signup"}),(req,res)=>{
+//     console.log(req.user,"req from the callback")
+//     res.redirect("/")
+// })
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get(
+"/auth/google/callback",
+passport.authenticate("google", { failureRedirect: "/signup" }),
+(req, res) => {
+    if (req.user && req.user._id) {
+      req.session.user = req.user._id; 
+    }
+
+    console.log(req.session, "Session after Google auth");
+    res.redirect("/");
+}
+);
 //sort
 router.get("/sort",userController.sortProduct)
+router.get('/filter-by-category',userController.catFilter)
+router.get("/search",userController.searchProducts)
+// router.get("/search",userController.search)
 
 //login logout
 router.get("/login", userController.loadlogin);

@@ -154,19 +154,6 @@
               </a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link"
-                id="forgot-password-tab"
-                data-bs-toggle="tab"
-                href="#forgot-password"
-                role="tab"
-                aria-controls="forgot-password"
-                aria-selected="false"
-              >
-                <i class="fi-rs-lock mr-10"></i>Reset Password
-              </a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="/logout">
                 <i class="fi-rs-sign-out mr-10"></i>Logout
               </a>
@@ -204,6 +191,7 @@
                         class="form-control"
                         required
                       />
+                      <span id="dname-error" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -216,6 +204,7 @@
                         class="form-control"
                         required
                       />
+                      <span id="phone-error" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -254,9 +243,6 @@
                     %><br />
                     <strong>Email:</strong> <%= user.email %><br />
                   </p>
-                  <a href="/profile/password" class="btn btn-sm btn-success"
-                    >Change Password</a
-                  >
                 </div>
               </div>
             </div>
@@ -504,7 +490,6 @@
                           class="mt-2 cancel-order-form"
                         >
                           <input type="hidden" name="orderId" value="<%= order.orderId %>">
-                          <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel('<%= order.orderId %>')">Cancel Order</button>
                           <button type="button" class="btn btn-danger btn-sm" onclick="retryPayment('<%= order.orderId %>','<%=order.totalPrice%>')">Retry Payment</button>
                       <%}else if(order.status==="processing"){%>
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel('<%= order.orderId %>')">Cancel Order</button>
@@ -799,7 +784,7 @@ function retryPayment(orderId, amount) {
                     key: "rzp_test_9mPp5pnV20FqUT", // Replace with your Razorpay Key
                     amount: data.amount,
                     currency: "INR",
-                    name: "Your Store Name",
+                    name: "Luxora Market",
                     description: "Order Payment",
                     order_id: data.razorpayOrderId, // Razorpay Order ID
                     handler: function (response) {
@@ -862,6 +847,38 @@ function retryPayment(orderId, amount) {
         });
 }
 
+document.getElementById('myForm').addEventListener('submit', function (e) {
+        const displayName = document.getElementById('dname').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        let isValid = true;
+
+        // Clear previous error messages
+        document.getElementById('dname-error').innerText = '';
+        document.getElementById('phone-error').innerText = '';
+
+        // Validate Display Name
+        if (displayName === '') {
+            document.getElementById('dname-error').innerText = 'Display Name cannot be empty.';
+            isValid = false;
+        } else if (displayName.length < 3 || displayName.length > 50) {
+            document.getElementById('dname-error').innerText = 'Must be 3-50 characters.';
+            isValid = false;
+        }
+
+        // Validate Phone Number
+        const phonePattern = /^[0-9]{10}$/;
+        if (!phonePattern.test(phone)) {
+            document.getElementById('phone-error').innerText = 'Phone number must be a valid 10-digit number.';
+            isValid = false;
+        }
+
+
+        // Prevent form submission if invalid
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
 
 
 

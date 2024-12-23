@@ -841,6 +841,7 @@
 
         const selectedAddress = selectedAddressElement.value;
         const paymentMethod = paymentMethodElement.value;
+        console.log("payment method selection from frondend",paymentMethod)
 
         // If payment method is COD, handle directly
         if (paymentMethod === "cod") {
@@ -883,7 +884,8 @@
           body: JSON.stringify({
             amount: finalTotalPrice,
             addressId: selectedAddress,
-            couponCode
+            couponCode,
+            paymentMethod
           }), // Convert to paise
         });
 
@@ -946,7 +948,12 @@
           },
           modal:{
             ondismiss:function(){
-              location.reload();
+              Swal.fire({
+        icon: "info",
+        title: "Payment Cancelled",
+        text: "You closed the payment screen. Your order has not been created.",
+      });
+              // location.reload();
               resetButton();
             }
           }

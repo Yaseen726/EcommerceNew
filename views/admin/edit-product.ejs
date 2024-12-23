@@ -209,71 +209,108 @@
     <script>
     
     function validateForm() {
-        let valid = true;
+    let valid = true;
 
-        // Clear previous error messages
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(error => error.style.display = 'none');
+    // Clear previous error messages
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(error => error.style.display = 'none');
 
-        // Product Name Validation
-        const productName = document.getElementById("product_name").value;
-        if (productName.trim() === "") {
-            document.getElementById("productName-error").textContent = "Product Name is required";
-            document.getElementById("productName-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Description Validation
-        const description = document.querySelector("textarea[name='description']").value;
-        if (description.trim() === "") {
-            document.getElementById("description-error").textContent = "Description is required";
-            document.getElementById("description-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Regular Price Validation
-        const regularPrice = document.querySelector("input[name='regularPrice']").value;
-        if (regularPrice.trim() === "" || isNaN(regularPrice)) {
-            document.getElementById("regularPrice-error").textContent = "Regular Price must be a valid number";
-            document.getElementById("regularPrice-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Sale Price Validation
-        const salePrice = document.querySelector("input[name='salePrice']").value;
-        if (salePrice.trim() === "" || isNaN(salePrice)) {
-            document.getElementById("salePrice-error").textContent = "Sale Price must be a valid number";
-            document.getElementById("salePrice-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Quantity Validation
-        const quantity = document.querySelector("input[name='quantity']").value;
-        if (quantity.trim() === "" || isNaN(quantity)) {
-            document.getElementById("quantity-error").textContent = "Quantity must be a valid number";
-            document.getElementById("quantity-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Color Validation
-        const color = document.querySelector("input[name='color']").value;
-        if (color.trim() === "") {
-            document.getElementById("color-error").textContent = "Color is required";
-            document.getElementById("color-error").style.display = 'block';
-            valid = false;
-        }
-
-        // Category Validation
-        const category = document.querySelector("select[name='category']").value;
-        if (category.trim() === "") {
-            document.getElementById("category-error").textContent = "Category is required";
-            document.getElementById("category-error").style.display = 'block';
-            valid = false;
-        }
-
-
-        return valid; // If all fields are valid, the form will be submitted
+    // Product Name Validation
+    const productName = document.getElementById("product_name").value;
+    if (productName.trim() === "") {
+        document.getElementById("productName-error").textContent = "Product Name is required";
+        document.getElementById("productName-error").style.display = 'block';
+        valid = false;
     }
+    if (productName.length < 5) {
+        document.getElementById("productName-error").textContent = "Product Name must be more than 5 characters";
+        document.getElementById("productName-error").style.display = "block";
+        valid = false;
+    }
+
+    // Description Validation
+    const description = document.querySelector("textarea[name='description']").value;
+    if (description.trim() === "") {
+        document.getElementById("description-error").textContent = "Description is required";
+        document.getElementById("description-error").style.display = 'block';
+        valid = false;
+    }
+    if(description.length<10){
+        document.getElementById("description-error").textContent = "Description must be greater than 10 characters long";
+        document.getElementById("description-error").style.display = 'block';
+        valid = false;
+    }
+
+    // Regular Price Validation
+    const regularPrice = document.querySelector("input[name='regularPrice']").value;
+    if (regularPrice.trim() === "" || isNaN(regularPrice)) {
+        document.getElementById("regularPrice-error").textContent = "Regular Price must be a valid number";
+        document.getElementById("regularPrice-error").style.display = 'block';
+        valid = false;
+    }
+
+    // Sale Price Validation
+    const salePrice = document.querySelector("input[name='salePrice']").value;
+    if (salePrice.trim() === "" || isNaN(salePrice)) {
+        document.getElementById("salePrice-error").textContent = "Sale Price must be a valid number";
+        document.getElementById("salePrice-error").style.display = 'block';
+        valid = false;
+    }
+    const salePriceNumber = parseFloat(salePrice);
+    const regularPriceNumber = parseFloat(regularPrice);
+    console.log(salePriceNumber,"sales price from frondend")
+    console.log(regularPriceNumber,"regular price from frondend")
+    console.log(salePriceNumber > regularPriceNumber)
+if (salePriceNumber > regularPriceNumber) {
+    document.getElementById("salePrice-error").textContent = "Sale Price cannot be greater than Regular Price";
+    document.getElementById("salePrice-error").style.display = 'block';
+    valid = false;
+}
+
+    // Quantity Validation
+    const quantity = document.querySelector("input[name='quantity']").value;
+    if (quantity.trim() === "" || isNaN(quantity)) {
+        document.getElementById("quantity-error").textContent = "Quantity must be a valid number";
+        document.getElementById("quantity-error").style.display = 'block';
+        valid = false;
+    }
+
+    // Color Validation
+    const color = document.querySelector("input[name='color']").value;
+    if (color.trim() === "") {
+        document.getElementById("color-error").textContent = "Color is required";
+        document.getElementById("color-error").style.display = 'block';
+        valid = false;
+    }
+
+    // Category Validation
+    const category = document.querySelector("select[name='category']").value;
+    if (category.trim() === "") {
+        document.getElementById("category-error").textContent = "Category is required";
+        document.getElementById("category-error").style.display = 'block';
+        valid = false;
+    }
+
+    // Image Validation
+    const imageInputs = document.querySelectorAll("input[type='file']");
+    let hasImage = false;
+    imageInputs.forEach(input => {
+        if (input.files.length > 0) {
+            hasImage = true;
+        }
+    });
+
+    const existingImages = document.querySelectorAll("img.rounded");
+    if (!hasImage && existingImages.length === 0) {
+        document.getElementById("images-error").textContent = "At least one image is required.";
+        document.getElementById("images-error").style.display = 'block';
+        valid = false;
+    }
+
+    return valid; // If all fields are valid, the form will be submitted
+}
+
+
     
         // Image preview function
         function viewImage1(event) {

@@ -9,11 +9,11 @@ const mongoose = require("mongoose");
 const Razorpay = require("razorpay");
 const dotenv = require("dotenv").config();
 const crypto = require("crypto");
-const razorpayInstance = new Razorpay({
-  key_id: "rzp_test_9mPp5pnV20FqUT",
-  key_secret: "nbtscbmxRqTkigojat7W1BGN",
-});
 
+const razorpayInstance = new Razorpay({
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET,
+});
 //product details page
 const getProductDetails = async (req, res) => {
   try {
@@ -344,6 +344,8 @@ const getcheckout = async (req, res) => {
 const placeorder = async (req, res) => {
   try {
     const { addressId, paymentMethod, amount, totalPrice, couponCode } = req.body;
+    console.log(req.body,"req body of place order")
+    console.log(paymentMethod,"payment method Check")
     const userId = req.session.user;
     if (!userId) {
       return res
@@ -447,13 +449,6 @@ const placeorder = async (req, res) => {
     
     if (paymentMethod === "cod") {
 
-      // if(finalPrice>1000){
-      //   return res.status(400).json({
-      //     success:false,
-      //     message:"Order Above 1000 Doesnt allowed for Cash on delivery User Another Mode "
-      //   })
-      // }
-      // COD order creation
       const order = new Order({
         userId,
         orderedItem: items,
@@ -573,7 +568,7 @@ const verifyRazorpayPayment = async (req, res) => {
       req.body;
     // Verify payment signature
     const generatedSignature = crypto
-      .createHmac("sha256", "nbtscbmxRqTkigojat7W1BGN")
+      .createHmac("sha256", process.env.KEY_SECRET)
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest("hex");
     if (generatedSignature !== razorpaySignature) {

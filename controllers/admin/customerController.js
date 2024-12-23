@@ -1,53 +1,55 @@
 const User=require("../../models/userSchema")
 
+
 // const customerInfo=async(req,res)=>{
 //     try {
-//         let search=""
-//         if(req.query.search)
-//         {
-//             search=req.query.search
-//         }
-//         let page=1
-//         if(req.query.page){
-//             page=req.query.page
-//         }
-//         const limit=3
-//         const userData = await User.find({
-//             isAdmin:false,
-//             $or:[
-//                 {name:{$regex:".*"+ search +".*"}},
-//                 {email:{$regex:".*"+ search +".*"}}
-//             ]
+//         const userData=await User.find({isAdmin:false})
+//         console.log(userData)
+//         res.render("customer-manage",{
+//             data:userData
 //         })
-//         .limit(limit*1)
-//         .skip((page-1)*limit)
-//         .exec();
-
-//         const count=await User.find({
-//             isAdmin:false,
-//             $or:[
-//                 {name:{$regex:".*"+search+".*"}},
-//                 {email:{$regex:".*"+search+".*"}}
-//             ]
-//         })
-//         .countDocuments()
-//         res.render("customer-manage")
 //     } catch (error) {
-        
+//         console("error",error)
 //     }
 // }
 
-const customerInfo=async(req,res)=>{
+const customerInfo = async (req, res) => {
     try {
-        const userData=await User.find({isAdmin:false})
-        console.log(userData)
-        res.render("customer-manage",{
-            data:userData
-        })
+        const { search, page = 1 } = req.query; // Retrieve search query and page number
+        const limit = 10; // Set the number of records per page
+        const skip = (page - 1) * limit;
+
+        // Build search query
+        const query = { isAdmin: false };
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } }, // Case-insensitive search on name
+                { email: { $regex: search, $options: "i" } },
+                { phone: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        // Get total count of matching users
+        const totalUsers = await User.countDocuments(query);
+
+        // Fetch paginated and filtered user data
+        const userData = await User.find(query).skip(skip).limit(limit);
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        res.render("customer-manage", {
+            data: userData,
+            currentPage: parseInt(page),
+            totalPages,
+            search
+        });
     } catch (error) {
-        console("error",error)
+        console.error("Error fetching customer info:", error);
+        res.status(500).send("Server error");
     }
-}
+};
+
 
 const UserBlockUnblock=async(req,res)=>{
     try {

@@ -8,9 +8,10 @@ const ObjectId=mongoose.Types.ObjectId
 const Product=require("../../models/productSchema")
 const path=require("path")
 const Razorpay=require("razorpay")
+const dotenv = require("dotenv").config();
 const razorpay=new Razorpay({
-  key_id:"rzp_test_9mPp5pnV20FqUT",
-  key_secret:"nbtscbmxRqTkigojat7W1BGN"
+  key_id:process.env.KEY_ID,
+  key_secret:process.env.KEY_SECRET
 })
 const crypto=require("crypto")
 
@@ -222,6 +223,12 @@ const cancelorder = async (req, res) => {
     }
 
     // Mark order as canceled
+
+    if(order.status==="processing"){
+      order.status="cancelled"
+      await order.save()
+      return res.json({success:true,message:"cancelled successfully"});
+    }
     order.status = "cancelled";
     await order.save();
 
@@ -231,6 +238,7 @@ const cancelorder = async (req, res) => {
     if (!user || !user.walletId) {
       return res.status(404).json({ success: false, message: "User or wallet not found" });
     }
+
 
     // Update wallet balance
     user.walletId.balance += order.finalAmount;
@@ -307,7 +315,6 @@ const addaddress=async(req,res)=>{
       
       const addressId = req.query.id;
       const userAddress = await Address.findOne({ "address._id": addressId });
-     console.log(userAddress)
       if (userAddress) {
           const address = userAddress.address.find(a => a._id.toString() === addressId);
           
@@ -464,7 +471,7 @@ const verifyPayment=async(req,res)=>{
 
         // Verify Razorpay payment signature
         const generatedSignature = crypto
-            .createHmac("sha256", "nbtscbmxRqTkigojat7W1BGN") // Replace with your Razorpay Secret
+            .createHmac("sha256", process.env.KEY_SECRET) // Replace with your Razorpay Secret
             .update(`${razorpayOrderId}|${razorpayPaymentId}`)
             .digest("hex");
 

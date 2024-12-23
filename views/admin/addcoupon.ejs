@@ -64,24 +64,28 @@
               <div class="mb-3">
                 <label for="name" class="form-label">Coupon Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Enter coupon code" required>
+                <small id="nameError" class="text-danger"></small>
               </div>
 
               <!-- Expiration Date -->
               <div class="mb-3">
                 <label for="expireOn" class="form-label">Expiration Date</label>
                 <input type="date" class="form-control" id="expireOn" name="expireOn" required>
+                <small id="dateError" class="text-danger"></small>
               </div>
 
               <!-- Offer Price -->
               <div class="mb-3">
                 <label for="offerPrice" class="form-label">Discount Amount</label>
                 <input type="number" class="form-control" id="offerPrice" name="offerPrice" placeholder="Enter discount amount" required>
+                <small id="offerError" class="text-danger"></small>
               </div>
 
               <!-- Minimum Purchase Amount -->
               <div class="mb-3">
                 <label for="minimumPrice" class="form-label">Minimum Purchase Amount</label>
                 <input type="number" class="form-control" id="minimumPrice" name="minimumPrice" placeholder="Enter minimum order value" required>
+                <small id="minPriceError" class="text-danger"></small>
               </div>
 
               <!-- Submit Button -->
@@ -101,7 +105,44 @@
   <script>
     document.getElementById('couponForm').addEventListener('submit', async (e) => {
       e.preventDefault(); // Prevent the form from refreshing the page
+        document.getElementById("nameError").textContent = "";
+        document.getElementById("dateError").textContent = "";
+        document.getElementById("offerError").textContent = "";
+        document.getElementById("minPriceError").textContent = "";
+        const name = document.getElementById("name").value.trim();
+        const expireOn = document.getElementById("expireOn").value;
+        const offerPrice = parseFloat(document.getElementById("offerPrice").value);
+        const minimumPrice = parseFloat(document.getElementById("minimumPrice").value);
 
+        let isValid = true;
+        if (name.length < 3 || !/^[A-Za-z0-9]+$/.test(name)) {
+            document.getElementById("nameError").textContent = "Coupon name must be at least 3 alphanumeric characters.";
+            isValid = false;
+        }
+
+        // Validate Expiration Date
+        const today = new Date().toISOString().split("T")[0];
+        if (!expireOn || expireOn < today) {
+            document.getElementById("dateError").textContent = "Expiration date must be today or later.";
+            isValid = false;
+        }
+
+        // Validate Offer Price
+        if (isNaN(offerPrice) || offerPrice < 1) {
+            document.getElementById("offerError").textContent = "Discount amount must be at least 1.";
+            isValid = false;
+        }
+
+        // Validate Minimum Purchase Amount
+        if (isNaN(minimumPrice) || minimumPrice < 1) {
+            document.getElementById("minPriceError").textContent = "Minimum purchase amount must be at least 1.";
+            isValid = false;
+        }
+
+        // If valid, submit the form
+        if (!isValid) {
+            return;
+        }
       // Collect form data
       const formData = {
         name: document.getElementById('name').value,
@@ -154,5 +195,6 @@
         });
         console.error(error);
       }
+
     });
   </script>

@@ -20,7 +20,7 @@ const mongoose=require("mongoose")
 const userAuth = async (req, res, next) => {
     try {
         let userId = req.session.user || req.session?.passport?.user;
-        console.log(req.session,"data from session")
+        console.log(req.session,"this is userid of req.session")
         if (!userId) {
             console.log("No user ID in session");
             return res.redirect("/login");
@@ -33,6 +33,7 @@ const userAuth = async (req, res, next) => {
         }
 
         const user = await User.findById(userId);
+        console.log(user,"sucessfully finding the user")
 
         if (user && !user.isBlocked) {
             return next();

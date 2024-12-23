@@ -242,6 +242,60 @@ body {
         display: none;
     }
 }
+/* Search Bar Styling Inside Products Tabs */
+.products-tabs form.d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Add spacing between input and button */
+    margin: 20px auto; /* Center the form and add margin */
+    max-width: 600px; /* Limit the form width for better layout */
+}
+
+.products-tabs form.d-flex .form-control {
+    flex: 1; /* Allow the input to expand and take available space */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.products-tabs form.d-flex .form-control:focus {
+    outline: none;
+    border-color: #007bff; /* Blue border on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow on focus */
+}
+
+.products-tabs form.d-flex .btn {
+    background-color: #007bff; /* Blue background for the button */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.products-tabs form.d-flex .btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .products-tabs form.d-flex {
+        flex-direction: column; /* Stack input and button vertically */
+        gap: 15px;
+    }
+
+    .products-tabs form.d-flex .form-control,
+    .products-tabs form.d-flex .btn {
+        width: 100%; /* Ensure full width for small screens */
+    }
+}
+
     </style>
 <!-- Main Content Container -->
 <main class="main-container">
@@ -289,39 +343,37 @@ body {
             <div class="container text-end">
                 <a href="/">HOME</a>
             </div><br>
-
             <!-- Product Controls -->
             <div class="products-controls">
                 <div class="sorting-container">
                     <label for="sort-by" class="sort-label">Sort by:</label>
                     <select id="sort-by" class="sort-select" onchange="handleSortChange()">
                         <option value="default">Default</option>
-                        <option value="popularity">Popularity</option>
                         <option value="price-low-high">Price: Low to High</option>
                         <option value="price-high-low">Price: High to Low</option>
-                        <option value="rating">Average Rating</option>
                         <option value="new-arrivals">New Arrivals</option>
                         <option value="alphabetical-a-z">Alphabetical (A-Z)</option>
                         <option value="alphabetical-z-a">Alphabetical (Z-A)</option>
                     </select>
+                    <label for="sort-by" class="sort-label">Categories</label>
+                    <select id="cat-filter" class="sort-select" onchange="catFilter()">
+                        <option value="all-categories" <%= categoryFilter === 'all-categories' ? 'selected' : '' %>>All Categories</option>
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>" <%= categoryFilter === category._id ? 'selected' : '' %>>
+                                <%= category.name %>
+                            </option>
+                        <% }); %>
+                    </select>
                 </div>
-
                 <!-- Product Tabs -->
                 <div class="products-tabs">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab">Featured</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab">Popular</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button" role="tab">New Added</button>
-                        </li>
-                    </ul>
-                    <a href="#" class="view-more">View More<i class="fi-rs-angle-double-small-right"></i></a>
+                    <form class="d-flex" method="get" action="/search" id="search-form">
+                        <input type="text" name="query" value="<%= searchQuery %>" class="form-control" placeholder="Search products...">
+                        <button type="submit" class="btn btn-primary ms-2">Search</button>
+                    </form>
                 </div>
             </div>
+            
 
             <!-- Product Grid -->
             <div class="tab-content">
@@ -362,6 +414,8 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Scripts -->
 <script>
+
+
 
 function toggleSection(sectionId) {
         // Hide all sections
@@ -428,6 +482,7 @@ async function addToWishlist(productId) {
 }
 
 
+
 function handleSortChange() {
     const sortBy = document.getElementById('sort-by').value;
 
@@ -448,9 +503,16 @@ function handleSortChange() {
 
 
 
+
+
 function updateProductList(products) {
     const productsContainer = document.getElementById('card');
     productsContainer.innerHTML = ''; // Clear existing content
+
+    if (!Array.isArray(products) || products.length === 0) {
+        productsContainer.innerHTML = '<p>No products found</p>'; // Show a message if no products found
+        return;
+    }
 
     products.forEach(product => {
         // Create the product card container
@@ -493,6 +555,46 @@ function updateProductList(products) {
         productsContainer.appendChild(productCard);
     });
 }
+
+function catFilter() {
+    const selectedCategory = document.getElementById('cat-filter').value;
+
+    // Send the selected category as a query parameter
+    fetch(`/filter-by-category?category=${selectedCategory}`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateProductList(data.products);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+const searchForm = document.getElementById('search-form');
+    const searchInput = searchForm.querySelector('input[name="query"]');
+    
+    // Add an event listener for form submission
+    searchForm.addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission behavior
+
+        const query = searchInput.value.trim();  // Get the query value
+        
+        // Only perform the search if there is a query
+        if (query) {
+            fetch(`/search?query=${query}`, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.products) {
+                        updateProductList(data.products);  // Update the product list with the response
+                    } else {
+                        console.log("No products found.");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+
 
 
 

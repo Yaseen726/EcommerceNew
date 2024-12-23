@@ -86,25 +86,66 @@ const addProduct = async (req,res) => {
     }
 }
 //get product
+// const getproduct = async (req, res) => {
+//     try {
+//         const productData=await Product.find().populate("category")
+//         const category = await Category.find({ isListed: true });
+
+//         if (category) {
+//             res.render("products", {
+//                 data: productData,   
+//                 cat: category,       
+//             });
+//         } else {
+//             res.redirect("/pagenotfound")
+//         }
+
+//     } catch (error) {
+//         console.error("Error fetching products:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+// }
+
 const getproduct = async (req, res) => {
     try {
-        const productData=await Product.find().populate("category")
+        const search = req.query.search || ""; // Default to an empty string if search is not provided
+        const page = parseInt(req.query.page, 10) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit, 10) || 4; // Default to 10 items per page
+
+        // Create a search query for product name or brand
+        const searchQuery = search
+            ? { $or: [{ productName: { $regex: search, $options: "i" } }] }
+            : {};
+
+        // Fetch products with pagination and populate the category
+        const productData = await Product.find(searchQuery)
+            .populate("category")
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        // Fetch total count for pagination
+        const totalProducts = await Product.countDocuments(searchQuery);
+
         const category = await Category.find({ isListed: true });
 
         if (category) {
             res.render("products", {
-                data: productData,   
-                cat: category,       
+                data: productData,
+                cat: category,
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                search: search,
             });
         } else {
-            res.redirect("/pagenotfound")
+            res.redirect("/pagenotfound");
         }
-
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).send("Internal Server Error");
     }
-}
+};
+
+
 //unblockproduct
 const blockproduct=async(req,res)=>{
     try {
@@ -275,10 +316,20 @@ const updateorderstatus = async (req, res) => {
 //load stock
 const loadstock=async(req,res)=>{
     try {
-        const products = await Product.find();  // Fetch all products
+        const page=parseInt(req.query.page)||1
+        const limit=parseInt(req.query.limit)||5
+        const skip=(page-1)*limit
 
+        const products = await Product.find()
+        .skip(skip)
+        .limit(limit); 
+        const totalProducts=await Product.countDocuments()
+        const totalPages=Math.ceil(totalProducts/limit)
         res.render("stockmanage", {
-            products: products
+            products: products,
+            currentPage:page,
+            totalPages,
+            limit
         });
     } catch (error) {
         console.error(error);
