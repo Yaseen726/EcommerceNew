@@ -178,34 +178,6 @@ async function generateInvoice(invoiceData) {
 }
 
 
-
-
-//cancel ordered
-
-// const cancelorder = async (req, res) => {
-//   try {
-//       const { orderId } = req.body; 
-
-//       const order = await Order.findOne({ orderId });
-
-//       if (!order) {
-//           return res.status(404).json({ success: false, message: "Order not found" });
-//       }
-
-//       if (order.status === "delivered" || order.status === "cancelled") {
-//           return res.status(400).json({ success: false, message: "Order cannot be canceled" });
-//       }
-
-//       order.status = "cancelled";
-//       await order.save();
-
-//       res.json({ success: true, message: "Order canceled successfully" });
-//   } catch (error) {
-//       console.error("Error canceling order:", error);
-//       res.status(500).json({ success: false, message: "Failed to cancel order" });
-//   }
-// };
-
 const cancelorder = async (req, res) => {
   try {
     const { orderId } = req.body;
