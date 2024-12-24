@@ -396,10 +396,10 @@
                       <label for="phone" class="form-label">Phone</label>
                       <input
                         type="text"
-                        id="phone"
+                        id="mobilenumber"
                         name="phone"
                         class="form-control"
-                        required
+                        
                       />
                       <small class="text-danger" id="phoneError"></small>
                     </div>
@@ -653,122 +653,80 @@ document.getElementById('addAddressForm').addEventListener('submit', function (e
     // Reset all error messages
     document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
 
+    // Helper Function: Sanitize Input
+    const sanitizeInput = (input) => input.trim();
+
     // Validate Address Type
-    const addresstype = document.getElementById('addresstype').value.trim();
+    const addresstype = sanitizeInput(document.getElementById('addresstype').value);
     if (addresstype.length < 3) {
-      document.getElementById('addresstypeError').textContent = 'Address type must be at least 3 characters.';
-      isValid = false;
+        document.getElementById('addresstypeError').textContent = 'Address type must be at least 3 characters.';
+        isValid = false;
     }
 
     // Validate Name
-    const name = document.getElementById('name').value.trim();
+    const name = sanitizeInput(document.getElementById('name').value);
     if (name.length < 3) {
-      document.getElementById('nameError').textContent = 'Name must be at least 3 characters.';
-      isValid = false;
+        document.getElementById('nameError').textContent = 'Name must be at least 3 characters.';
+        isValid = false;
     }
 
     // Validate City
-    const city = document.getElementById('city').value.trim();
+    const city = sanitizeInput(document.getElementById('city').value);
     if (city.length < 2) {
-      document.getElementById('cityError').textContent = 'City name is too short.';
-      isValid = false;
+        document.getElementById('cityError').textContent = 'City name is too short.';
+        isValid = false;
     }
 
     // Validate Landmark
-    const landmark = document.getElementById('landmark').value.trim();
+    const landmark = sanitizeInput(document.getElementById('landmark').value);
     if (landmark.length < 3) {
-      document.getElementById('landmarkError').textContent = 'Landmark must be at least 3 characters.';
-      isValid = false;
+        document.getElementById('landmarkError').textContent = 'Landmark must be at least 3 characters.';
+        isValid = false;
     }
 
     // Validate State
-    const state = document.getElementById('state').value.trim();
+    const state = sanitizeInput(document.getElementById('state').value);
     if (state.length < 2) {
-      document.getElementById('stateError').textContent = 'State name is too short.';
-      isValid = false;
+        document.getElementById('stateError').textContent = 'State name is too short.';
+        isValid = false;
     }
 
     // Validate Pincode
-    const pincode = document.getElementById('pincode').value.trim();
-    if (!/^\d{6}$/.test(pincode)) {
-      document.getElementById('pincodeError').textContent = 'Pincode must be exactly 6 digits.';
-      isValid = false;
+    const pincode = sanitizeInput(document.getElementById('pincode').value);
+    if (!pincode) {
+        document.getElementById('pincodeError').textContent = 'Pincode is required.';
+        isValid = false;
+    } else if (!/^\d{6}$/.test(pincode)) {
+        document.getElementById('pincodeError').textContent = 'Pincode must be exactly 6 digits.';
+        isValid = false;
     }
 
     // Validate Phone
-    const phone = document.getElementById('phone').value.trim();
-    if (!/^\d{10}$/.test(phone)) {
-      document.getElementById('phoneError').textContent = 'Phone number must be exactly 10 digits.';
-      isValid = false;
+    const phone = sanitizeInput(document.getElementById('mobilenumber').value);
+    console.log(phone,"from frontend")
+    if (!phone) {
+        document.getElementById('phoneError').textContent = 'Phone number is required.';
+        isValid = false;
+    } else if (!/^\d{10}$/.test(phone)) {
+        document.getElementById('phoneError').textContent = 'Phone number must be exactly 10 digits.';
+        isValid = false;
     }
 
-    // Validate Alternate Phone
-    const altphone = document.getElementById('altphone').value.trim();
+    // Validate Alternate Phone (Optional)
+    const altphone = sanitizeInput(document.getElementById('altphone').value);
     if (altphone && !/^\d{10}$/.test(altphone)) {
-      document.getElementById('altphoneError').textContent = 'Alternate phone number must be exactly 10 digits.';
-      isValid = false;
+        document.getElementById('altphoneError').textContent = 'Alternate phone number must be exactly 10 digits.';
+        isValid = false;
     }
 
-    // Prevent form submission if validation fails
+    // Prevent Form Submission if Validation Fails
     if (!isValid) {
-      e.preventDefault();
+        e.preventDefault();
     }
-  });
+});
 
-//   function retryPayment(orderId, amount) {
-//     // Fetch Razorpay order ID from the backend
-//     fetch("/account/create-retry-razorpay-order", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ orderId, amount }),
-//     })
-//         .then((res) => res.json())
-//         .then((data) => {
-//             if (data.success) {
-//                 const options = {
-//                     key: "rzp_test_9mPp5pnV20FqUT", // Replace with your Razorpay Key
-//                     amount: data.amount,
-//                     currency: "INR",
-//                     name: "Your Store Name",
-//                     description: "Order Payment",
-//                     order_id: data.razorpayOrderId, // Razorpay Order ID
-//                     handler: function (response) {
-//                         // Handle successful payment
-//                         fetch(`/account/payment-success/${orderId}`, {
-//                             method: "POST",
-//                             headers: {
-//                                 "Content-Type": "application/json",
-//                             },
-//                             body: JSON.stringify({
-//                                 razorpayPaymentId: response.razorpay_payment_id,
-//                                 razorpayOrderId: response.razorpay_order_id,
-//                                 razorpaySignature: response.razorpay_signature,
-//                             }),
-//                         })
-//                             .then((res) => res.json())
-//                             .then((result) => {
-//                                 if (result.success) {
-//                                     alert("Payment successful! Your order has been updated.");
-//                                     location.reload(); // Reload to update the order status
-//                                 } else {
-//                                     alert("Payment verification failed. Please try again.");
-//                                 }
-//                             });
-//                     },
-//                     theme: { color: "#F37254" },
-//                 };
 
-//                 const razorpay = new Razorpay(options);
-//                 razorpay.open();
-//             } else {
-//                 alert("Failed to create payment order. Please try again.");
-//             }
-//         })
-//         .catch((error) => {
-//             console.error(error);
-//             alert("An error occurred. Please try again.");
-//         });
-// }
+
 
 function retryPayment(orderId, amount) {
     // Fetch Razorpay order ID from the backend

@@ -15,6 +15,7 @@ const razorpay=new Razorpay({
 })
 const crypto=require("crypto")
 
+//user profile
 
 const userprofile = async (req, res) => {
   try {
@@ -119,7 +120,7 @@ const DownloadInvoice = async (req, res) => {
       createdOn: order.createdOn,
     };
 
-    // Call your function to generate the invoice PDF
+    
     const invoiceBuffer = await generateInvoice(invoiceData); // Adjust as per your PDF generation function
 
     // Set headers to prompt file download
@@ -177,34 +178,6 @@ async function generateInvoice(invoiceData) {
   });
 }
 
-
-
-
-//cancel ordered
-
-// const cancelorder = async (req, res) => {
-//   try {
-//       const { orderId } = req.body; 
-
-//       const order = await Order.findOne({ orderId });
-
-//       if (!order) {
-//           return res.status(404).json({ success: false, message: "Order not found" });
-//       }
-
-//       if (order.status === "delivered" || order.status === "cancelled") {
-//           return res.status(400).json({ success: false, message: "Order cannot be canceled" });
-//       }
-
-//       order.status = "cancelled";
-//       await order.save();
-
-//       res.json({ success: true, message: "Order canceled successfully" });
-//   } catch (error) {
-//       console.error("Error canceling order:", error);
-//       res.status(500).json({ success: false, message: "Failed to cancel order" });
-//   }
-// };
 
 const cancelorder = async (req, res) => {
   try {

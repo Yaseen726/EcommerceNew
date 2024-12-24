@@ -176,42 +176,62 @@ s<%-include("../partials/user/header.ejs") %>
 
   // Form Validation Function
   function validateAddressForm() {
-      let isValid = true;
-      const fields = ['name', 'city', 'state', 'landMark', 'pincode', 'phone', 'altPhone'];
-      
-      // Clear previous errors
-      fields.forEach(field => document.getElementById(`${field}Err`).textContent = '');
+    let isValid = true;
 
-      const validations = {
-          name: 'Name is required.',
-          city: 'City is required.',
-          state: 'State is required.',
-          landMark: 'Landmark is required.',
-          pincode: 'Pincode must be 6 digits.',
-          phone: 'Phone number must be 10 digits.',
-          altPhone: 'Alternate phone number must be 10 digits.'
-      };
+    // Fields to be validated
+    const fields = ['name', 'city', 'state', 'landMark', 'pincode', 'phone', 'altPhone'];
 
-      fields.forEach(field => {
-    const value = document.getElementById(field).value.trim();
+    // Clear previous error messages
+    fields.forEach(field => {
+        document.getElementById(`${field}Err`).textContent = '';
+    });
 
-    if (field === 'altPhone') {
-        // Validate altPhone only if it's not empty
-        if (value !== '' && !/^\d{10}$/.test(value)) {
-            document.getElementById(`${field}Err`).textContent = validations[field];
-            isValid = false;
+    // Validation messages
+    const validations = {
+        name: 'Name is required and must be at least 3 characters.',
+        city: 'City is required and must be at least 3 characters.',
+        state: 'State is required and must be at least 3 characters.',
+        landMark: 'Landmark is required and must be at least 3 characters.',
+        pincode: 'Pincode must be exactly 6 digits.',
+        phone: 'Phone number must be exactly 10 digits.',
+        altPhone: 'Alternate phone number must be exactly 10 digits.'
+    };
+
+    // Loop through fields and apply validations
+    fields.forEach(field => {
+        const value = document.getElementById(field).value.trim();
+
+        // Validate the 'altPhone' field only if it's not empty
+        if (field === 'altPhone' && !/^\d{10}$/.test(value)) {
+                    document.getElementById(`${field}Err`).textContent = validations[field];
+                    isValid = false;
+                }
+        else {
+            // General field validation: check if the value is empty or if specific field rules are violated
+            if (value === '') {
+                document.getElementById(`${field}Err`).textContent = validations[field];
+                isValid = false;
+            } else {
+                // Validate if name, city, state, and landmark are at least 2 characters long
+                if ((field === 'name' || field === 'city' || field === 'state' || field === 'landMark') && value.length < 3) {
+                    document.getElementById(`${field}Err`).textContent = `${validations[field]} It cannot be a single character.`;
+                    isValid = false;
+                }
+
+                if (field === 'pincode' && !/^\d{6}$/.test(value)) {
+                    document.getElementById(`${field}Err`).textContent = validations[field];
+                    isValid = false;
+                }
+
+                if (field === 'phone' && !/^\d{10}$/.test(value)) {
+                    document.getElementById(`${field}Err`).textContent = validations[field];
+                    isValid = false;
+                }
+            }
         }
-    } else {
-        // Validate all other fields
-        if (value === '' || 
-           (field === 'pincode' && !/^\d{6}$/.test(value)) || 
-           (field === 'phone' && !/^\d{10}$/.test(value))) {
-            document.getElementById(`${field}Err`).textContent = validations[field];
-            isValid = false;
-        }
-    }
-});
+    });
 
-      return isValid;
-  }
+    return isValid;
+}
+
 </script>

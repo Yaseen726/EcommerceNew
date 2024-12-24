@@ -15,7 +15,6 @@ router.use(async(req, res, next) => {
 });
 router.get("/pagenotfound", userController.pagenotfound);
 router.get("/", userController.loadHomepage);
-//load product page
 
 
 //authentication routes and account creation 
@@ -23,11 +22,7 @@ router.get("/signup",userController.loadsignup);
 router.post("/signup",userController.signup)
 router.post("/verify-otp",userController.verifyotp)
 router.post("/resend-otp",userController.resendotp)
-// router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
-// router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/signup"}),(req,res)=>{
-//     console.log(req.user,"req from the callback")
-//     res.redirect("/")
-// })
+
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
@@ -44,9 +39,8 @@ passport.authenticate("google", { failureRedirect: "/signup" }),
 );
 //sort
 router.get("/sort",userController.sortProduct)
-router.get('/filter-by-category',userController.catFilter)
+router.get('/filter-by-category',userController.categoryFilter)
 router.get("/search",userController.searchProducts)
-// router.get("/search",userController.search)
 
 //login logout
 router.get("/login", userController.loadlogin);

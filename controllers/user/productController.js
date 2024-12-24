@@ -14,6 +14,7 @@ const razorpayInstance = new Razorpay({
   key_id: process.env.KEY_ID,
   key_secret: process.env.KEY_SECRET,
 });
+
 //product details page
 const getProductDetails = async (req, res) => {
   try {
@@ -475,12 +476,11 @@ const placeorder = async (req, res) => {
 
     // Razorpay payment initialization
     const razorpayOrder = await razorpayInstance.orders.create({
-      amount: amount, // Razorpay requires the amount in paise
+      amount: amount, 
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     });
     const coupondiscount=await Coupon.findOne({name:couponCode,isList:true,isExpired:false})
-    //set here logic for suuccess only order is created other wise
     const order = new Order({
       userId,
       orderedItem: items,

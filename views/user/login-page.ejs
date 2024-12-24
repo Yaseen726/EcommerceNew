@@ -29,12 +29,14 @@
                         <div class="heading_s1">
                             <h3 class="mb-40">Login to Your Account</h3>
                         </div>
-                        <form method="post" action="/login">
+                        <form method="post" action="/login" id="loginForm"> <!-- Add the id here -->
                             <div class="form-group">
-                                <input type="text" class="form-control" required name="email" placeholder="Your Email">
+                                <input type="text" class="form-control" required name="email" id="email" placeholder="Your Email">
+                                <span id="emailError" class="error"></span>
                             </div>
                             <div class="form-group">
-                                <input type="password" class="form-control" required name="password" placeholder="Password">
+                                <input type="password" class="form-control" required name="password" id="password" placeholder="Password">
+                                <span id="passwordError" class="error"></span>
                             </div>
                             <div class="login_footer form-group">
                                 <div class="chek-form">
@@ -48,14 +50,15 @@
                             <div class="form-group">
                                 <button type="submit" class="btn btn-login btn-block hover-up" name="login">Log in</button>
                             </div>
-                            <%if(message){%>
-                                <p class="danger"><%=message%></p>
-                            <%}%>
+                            <% if (message) { %>
+                                <p class="danger"><%= message %></p>
+                            <% } %>
                             <!-- Google Authentication Button -->
                             <ul class="btn-login list_none text-center mb-15">
                                 <li><a href="/auth/google" class="btn btn-google hover-up">Login With Google</a></li>
                             </ul>
                         </form>
+                        
                         <div class="text-muted text-center mt-15">Don't have an account? <a href="/signup">Sign up now</a></div>
                     </div>
                 </div>
@@ -83,5 +86,30 @@
     <script src="assets/js/plugins/jquery.vticker-min.js"></script>
     <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
     <script src="./assets/js/main.js?v=3.4"></script>
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        document.getElementById('emailError').textContent = '';
+        document.getElementById('passwordError').textContent = '';
+
+        let isValid = true;
+        const emailInput = document.getElementById('email');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+            isValid = false;
+        }
+        const passwordInput = document.getElementById('password');
+        if (passwordInput.value.trim() === '') {
+            document.getElementById('passwordError').textContent = 'Password is required.';
+            isValid = false;
+        }
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+});
+
+</script>
+    </body>
 </html>
