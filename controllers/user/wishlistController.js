@@ -2,18 +2,20 @@ const Wishlist=require("../../models/wishlistSchema")
 const Product=require("../../models/productSchema")
 const User=require("../../models/userSchema")
 
+//load wishlist
 const loadwishlist=async(req,res)=>{
-  try {
+try {
     const userId=req.session.user
     const wishlist=await Wishlist.findOne({userId}).populate("products.productId")
     console.log(wishlist,"wislist items")
     res.render("wishlist",{wishlistItems:wishlist ? wishlist.products : []})
-  } catch (error) {
+} catch (error) {
     console.error("Error loading Wishlist",error)
     res.status(500).send("server error")
-  }
+}
 }
 
+//add wishlist
 const addwishlist = async (req, res) => {
     try {
         const { productId } = req.body;
@@ -40,6 +42,7 @@ const addwishlist = async (req, res) => {
     }
 };
 
+//delete wishlist
 
 const deleteWishlistItem = async (req, res) => {
     try {

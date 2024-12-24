@@ -9,7 +9,7 @@ const Address=require("../../models/addressSchema")
 const Wallet=require("../../models/walletSchema")
 
 
-//search filter includede homepage
+// homepage
 
 const loadHomepage = async (req, res) => {
   try {
@@ -78,7 +78,7 @@ const loadHomepage = async (req, res) => {
 };
 
 
-const catFilter = async (req, res) => {
+const categoryFilter = async (req, res) => {
   try {
 
     const category = req.query.category;
@@ -103,7 +103,7 @@ const catFilter = async (req, res) => {
 
 const searchProducts = async (req, res) => {
   try {
-    const searchQuery = req.query.query || '';  // Get the search query
+    const searchQuery = req.query.query || '';  
 
     let products;
     if (searchQuery) {
@@ -118,7 +118,6 @@ const searchProducts = async (req, res) => {
       products = await Product.find({ isBlocked: false });
     }
 
-    // Send a clearer message if no products were found
     if (products.length === 0) {
       return res.status(200).json({ message: 'No products found', products });
     }
@@ -492,7 +491,7 @@ module.exports = {
   getResetPassPage,
   resendOtp,
   resetPassword,
-  catFilter,
+  categoryFilter,
   searchProducts
 
 };

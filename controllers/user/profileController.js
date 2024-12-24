@@ -15,6 +15,7 @@ const razorpay=new Razorpay({
 })
 const crypto=require("crypto")
 
+//user profile
 
 const userprofile = async (req, res) => {
   try {
@@ -119,7 +120,7 @@ const DownloadInvoice = async (req, res) => {
       createdOn: order.createdOn,
     };
 
-    // Call your function to generate the invoice PDF
+    
     const invoiceBuffer = await generateInvoice(invoiceData); // Adjust as per your PDF generation function
 
     // Set headers to prompt file download
