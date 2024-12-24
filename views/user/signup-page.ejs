@@ -98,7 +98,7 @@
     <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
     <!-- Template  JS -->
     <script src="./assets/js/main.js?v=3.4"></script>
-    <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
 const form = document.querySelector("form");
 const nameInput = form.querySelector("input[name='name']");
@@ -106,7 +106,6 @@ const emailInput = form.querySelector("input[name='email']");
 const phoneInput = form.querySelector("input[name='phone']");
 const passwordInput = form.querySelector("input[name='password']");
 const confirmPasswordInput = form.querySelector("input[name='confirm_password']");
-const checkboxInput = form.querySelector("input[name='checkbox']");
 
 form.addEventListener("submit", function (event) {
     // Reset all error messages
@@ -115,48 +114,54 @@ form.addEventListener("submit", function (event) {
     let isValid = true;
 
     // Validate name
-    if (nameInput.value.trim() === "") {
-    showError(nameInput, "Name is .");
-    isValid = false;
+    const name = nameInput.value.trim();
+    if (name === "") {
+        showError(nameInput, "Name is required.");
+        isValid = false;
+    } else if (name.length < 3) {
+        showError(nameInput, "Name must be at least 3 characters long.");
+        isValid = false;
+    } else if (name.length > 50) {
+        showError(nameInput, "Name must not exceed 50 characters.");
+        isValid = false;
     }
 
     // Validate email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(emailInput.value)) {
-    showError(emailInput, "Please enter a valid email address.");
-    isValid = false;
+        showError(emailInput, "Please enter a valid email address.");
+        isValid = false;
     }
 
     // Validate phone number
     const phonePattern = /^[0-9]{10}$/;
     if (!phonePattern.test(phoneInput.value)) {
-    showError(phoneInput, "Phone number should be exactly 10 digits.");
-    isValid = false;
+        showError(phoneInput, "Phone number should be exactly 10 digits.");
+        isValid = false;
     }
 
-    // Validate password
-    if (passwordInput.value.length < 6) {
-    showError(passwordInput, "Password must be at least 6 characters long.");
-    isValid = false;
+    // Validate password (at least one letter, one number, one special character, and at least 6 characters)
+    const password = passwordInput.value;
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/;
+    if (!passwordPattern.test(password)) {
+        showError(passwordInput, "Password must be at least 6 characters long, contain both letters and numbers, and include at least one special character.");
+        isValid = false;
     }
 
     // Validate confirm password
-    if (confirmPasswordInput.value !== passwordInput.value) {
-    showError(confirmPasswordInput, "Passwords do not match.");
-    isValid = false;
+    if (confirmPasswordInput.value !== password) {
+        showError(confirmPasswordInput, "Passwords do not match.");
+        isValid = false;
     }
 
     // Validate checkbox
-    if (!checkboxInput.checked) {
-    showError(checkboxInput, "You must agree to the terms and policy.");
-    isValid = false;
-    }
 
     // Prevent form submission if validation fails
     if (!isValid) {
-    event.preventDefault();
+        event.preventDefault();
     }
 });
+
 
   // Helper function to show error messages
 function showError(input, message) {
