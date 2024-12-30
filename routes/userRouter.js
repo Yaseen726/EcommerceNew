@@ -103,5 +103,6 @@ router.post("/wallet/add-money",userAuth,walletController.addWalletMoney)
 //retrypayments
 router.post("/account/create-retry-razorpay-order",profileController.RetryPayment)
 router.post("/account/payment-success/:orderId",profileController.verifyPayment)
+router.get('/order/:id/details',profileController.loadOrderDetailsModal);
 
 module.exports = router;

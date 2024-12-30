@@ -463,6 +463,58 @@ const verifyPayment=async(req,res)=>{
     }
 }
 
+const loadOrderDetailsModal = async (req, res) => {
+  try {
+      const { id } = req.params; // Order ID passed in the URL
+
+      // Fetch the order details
+      const order = await Order.findById(id).populate('userId').populate('orderedItem.product');
+      if (!order) {
+          return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+
+      // Fetch address details
+      const address = await Address.findOne(
+          { userId: order.userId, "address._id": order.address },
+          { "address.$": 1 } // Fetch only the specific address
+      );
+
+      // Prepare ordered items details
+      const orderedItems = order.orderedItem.map((item) => ({
+          productName: item.product?.productName || 'Product not found',
+          productImage: item.product?.productImage[0] || 'default.jpg',
+          quantity: item.quantity,
+          price: item.price,
+      }));
+
+      // Respond with order details as JSON
+      res.json({
+          success: true,
+          order: {
+              orderId: order.orderId,
+              totalPrice: order.totalPrice,
+              status: order.status,
+              invoiceDate: order.invoiceDate,
+              discount: order.discount || 0,
+              finalAmount: order.finalAmount,
+              razorpayOrderId:order.razorpayOrderId
+          },
+          user: {
+              name: order.userId.name,
+              email: order.userId.email,
+              phone: order.userId.phone,
+          },
+          address: address?.address[0] || null,
+          orderedItems,
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+
+
 
   module.exports={
     userprofile,
@@ -474,5 +526,6 @@ const verifyPayment=async(req,res)=>{
     updateUserProfile,
     DownloadInvoice,
     RetryPayment,
-    verifyPayment
+    verifyPayment,
+    loadOrderDetailsModal
   }

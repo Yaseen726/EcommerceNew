@@ -83,6 +83,10 @@
       padding: 15px;
     }
   }
+  .move-to-right {
+  margin-left: auto; /* Push the button to the right */
+  display: block; /* Ensure proper alignment within the flex or block container */
+}
 </style>
 
 <main class="main">
@@ -489,6 +493,7 @@
                           method="post"
                           class="mt-2 cancel-order-form"
                         >
+                        
                           <input type="hidden" name="orderId" value="<%= order.orderId %>">
                           <button type="button" class="btn btn-danger btn-sm" onclick="retryPayment('<%= order.orderId %>','<%=order.totalPrice%>')">Retry Payment</button>
                       <%}else if(order.status==="processing"){%>
@@ -506,12 +511,36 @@
                           Cancellation not available for this order.
                         </p>
                       <% } %>
+
+                      <button 
+                      class="btn btn-primary btn-sm move-to-right" 
+                      data-bs-toggle="modal" 
+                      data-bs-target="#orderDetailsModal" 
+                      onclick="fetchOrderDetails('<%= order._id %>')">
+                      <i class="fas fa-eye"></i> View Details
+                    </button>
                     </div>
                     <hr>
                   <% }) %>
                 <% } else { %>
                   <p>No orders found.</p>
                 <% } %>
+
+                <!-- Modal for Order Details -->
+                <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body" id="orderDetailsContent">
+                        <p>Loading...</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
           
                 <!-- Pagination Section -->
                 <div class="pagination-container mt-4">
@@ -837,6 +866,71 @@ document.getElementById('myForm').addEventListener('submit', function (e) {
             e.preventDefault();
         }
     });
+
+    async function fetchOrderDetails(orderId) {
+  try {
+    const response = await fetch(`/order/${orderId}/details`);
+    const data = await response.json();
+
+    if (data.success) {
+      const { order, user, address, orderedItems } = data;
+
+      let modalContent = `
+        <h5>User Information</h5>
+        <p><strong>Name:</strong> ${user.name}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Phone:</strong> ${user.phone}</p>
+        <hr>
+        <h5>Order Summary</h5>
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Invoice Date:</strong> ${new Date(order.invoiceDate).toLocaleString()}</p>
+        <p><strong>Total Price:</strong> ₹${order.totalPrice}</p>
+        <p><strong>Discount:</strong> ₹${order.discount}</p>
+        <p><strong>Final Amount:</strong> ₹${order.finalAmount}</p>
+        <p><strong>Payment Mode:</strong> ${
+          order.razorpayOrderId ? 
+          `Online Payment (Razorpay ID: ${order.razorpayOrderId})` : 
+          "Cash on Delivery/Wallet Payment"
+        }</p>
+        <hr>
+        <h5>Delivery Address</h5>`;
+        console.log(order,"razor pay orderid")
+      if (address) {
+        modalContent += `
+          <p><strong>Type:</strong> ${address.addresstype}</p>
+          <p><strong>Name:</strong> ${address.name}</p>
+          <p><strong>City:</strong> ${address.city}</p>
+          <p><strong>State:</strong> ${address.state}</p>
+          <p><strong>Pincode:</strong> ${address.pincode}</p>
+          <p><strong>Phone:</strong> ${address.phone}</p>`;
+      } else {
+        modalContent += `<p>Address details not available.</p>`;
+      }
+
+      modalContent += `
+        <hr>
+        <h5>Ordered Items</h5>
+        <ul>`;
+      orderedItems.forEach(item => {
+        modalContent += `
+          <li>
+            <img src="/uploads/re-image/${item.productImage}" alt="${item.productName}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+            <strong>${item.productName}</strong> - ₹${item.price} (Quantity: ${item.quantity})
+          </li>`;
+      });
+      modalContent += `</ul>`;
+
+      document.getElementById('orderDetailsContent').innerHTML = modalContent;
+    } else {
+      document.getElementById('orderDetailsContent').innerHTML = `<p>${data.message}</p>`;
+    }
+  } catch (error) {
+    console.error(error);
+    document.getElementById('orderDetailsContent').innerHTML = `<p>Error loading order details.</p>`;
+  }
+}
+
 
 
 
