@@ -718,6 +718,20 @@
             >Online Payment (razorpay)</label
           >
         </div>
+
+        <!--Wallet Payment-->
+        <div class="payment-option">
+          <input
+            type="radio"
+            id="wallet"
+            name="paymentMethod"
+            value="wallet"
+            class="payment-radio"
+          />
+          <label for="wallet" class="payment-label"
+            >Wallet</label
+          >
+        </div>
       </div>
     </div>
 
@@ -842,7 +856,38 @@
         const selectedAddress = selectedAddressElement.value;
         const paymentMethod = paymentMethodElement.value;
         console.log("payment method selection from frondend",paymentMethod)
+       //if payment is wallet payment
 
+       if (paymentMethod === "wallet") {
+        // Implement wallet logic here
+        const response = await fetch("/checkout/place-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            addressId: selectedAddress,
+            paymentMethod,
+            totalPrice,
+            couponCode
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          await Swal.fire({
+            icon: "success",
+            title: "Order Placed Successfully",
+            text: `Your order ID is ${result.orderId}.`,
+            confirmButtonText: "OK",
+          });
+          window.location.href = "/place-order/success";
+        } else {
+          throw new Error(result.message || "Order failed.");
+        }
+        return;
+      }
         // If payment method is COD, handle directly
         if (paymentMethod === "cod") {
           const response = await fetch("/checkout/place-order", {

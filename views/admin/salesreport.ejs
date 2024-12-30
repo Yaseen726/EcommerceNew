@@ -42,15 +42,21 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form id="filterForm" method="GET" action="/admin/salesreport">
+                    <form id="filterForm" method="GET" action="/admin/salesreport" onsubmit="return validateDates()">
+                        <div id="errorMessage" class="alert alert-danger d-none" role="alert">
+                            Start Date cannot be later than End Date.
+                        </div>
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label">Start Date</label>
-                                <input type="date" class="form-control border-primary" name="startDate" value="<%= startDate || '' %>">
+                                <input type="date" class="form-control border-primary" name="startDate" id="startDate" value="<%= startDate || '' %>">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">End Date</label>
-                                <input type="date" class="form-control border-primary" name="endDate" value="<%= endDate || '' %>">
+                                <input type="date" class="form-control border-primary" name="endDate" id="endDate" value="<%= endDate || '' %>">
+                            </div>
+                            <div id="errorMessage" class="alert alert-danger d-none" role="alert">
+                                Start Date cannot be later than End Date.
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Quick Filters</label>
@@ -72,6 +78,7 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Metrics Section -->
     <div class="row mb-4">
@@ -161,180 +168,92 @@
     <!-- Download Buttons -->
     <div class="row mt-4">
         <div class="col-12 text-center">
-            <a href="/admin/download-pdf" class="btn btn-danger me-3 shadow-lg">
+            <a href="/admin/download-pdf" id="downloadPdfButton" class="btn btn-danger me-3 shadow-lg">
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </a>
-            <a href="/admin/download-excel" class="btn btn-success shadow-lg">
+            <a href="/admin/download-excel" id="downloadExcelButton" class="btn btn-success shadow-lg">
                 <i class="bi bi-file-excel me-2"></i>Download Excel
             </a>
         </div>
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
 <script>
-    // Function to handle filter form submission
-    // document.getElementById("filterForm").addEventListener("submit", function (event) {
-    //     event.preventDefault(); // Prevent default form submission
 
-    //     // Get form inputs
-    //     const startDate = document.querySelector('input[name="startDate"]').value;
-    //     const endDate = document.querySelector('input[name="endDate"]').value;
-    //     const quickFilter = document.querySelector('select[name="quickFilter"]').value;
 
-    //     // Construct URL with query parameters
-    //     const url = new URL(window.location.origin + "/admin/salesreport");
-    //     if (startDate) url.searchParams.append("startDate", startDate);
-    //     if (endDate) url.searchParams.append("endDate", endDate);
-    //     if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
+function validateDates() {
+        // Get the values of the date inputs
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
-    //     // Redirect to the constructed URL
-    //     window.location.href = url.toString();
-    // });
+        // Check if start date is later than end date
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            // Show error message
+            document.getElementById('errorMessage').classList.remove('d-none');
+            return false; // Prevent form submission
+        } else {
+            // Hide error message if validation is successful
+            document.getElementById('errorMessage').classList.add('d-none');
+            return true; // Allow form submission
+        }
+    }
 
-    // // Function to handle pagination
-    // document.querySelectorAll(".pagination a").forEach(link => {
-    //     link.addEventListener("click", function (event) {
-    //         event.preventDefault(); // Prevent default link click
-
-    //         // Navigate to the page URL
-    //         window.location.href = this.getAttribute("href");
-    //     });
-    // });
-
-    // // Additional feature: Highlight active menu (if applicable)
-    // const activeLink = document.querySelector(`.nav-link[href="/admin/salesreport"]`);
-    // if (activeLink) {
-    //     activeLink.classList.add("active");
-    // }
-
-    // document.addEventListener('DOMContentLoaded', function () {
-
-    //     const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
-    //     const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
-    //     const loadingIndicator = document.getElementById('loadingIndicator'); // assuming you have a loading indicator
-
-    //     if (downloadPDFButton) {
-    //         downloadPDFButton.addEventListener('click', function (event) {
-    //             event.preventDefault();
-    //             loadingIndicator.style.display = 'block'; // Show loading indicator
-    //             window.location.href = '/admin/download-pdf'; // Start PDF download
-    //         });
-    //     }
-
-    //     if (downloadExcelButton) {
-    //         downloadExcelButton.addEventListener('click', function (event) {
-    //             event.preventDefault();
-    //             loadingIndicator.style.display = 'block'; // Show loading indicator
-    //             window.location.href = '/admin/download-excel'; // Start Excel download
-    //         });
-    //     }
-
-    // });
-
-  // Add event listeners for form submission and pagination
-  document.getElementById("filterForm").addEventListener("submit", function (event) {
-    event.preventDefault(); // Prevent default form submission
-    console.log("Form submitted"); // Log when the form is submitted
-
-    // Get form inputs
+    function generateDownloadLink() {
+    // Get values from the filter form
     const startDate = document.querySelector('input[name="startDate"]').value;
     const endDate = document.querySelector('input[name="endDate"]').value;
     const quickFilter = document.querySelector('select[name="quickFilter"]').value;
 
-    console.log("Start Date:", startDate); // Log start date
-    console.log("End Date:", endDate); // Log end date
-    console.log("Quick Filter:", quickFilter); // Log quick filter
+    // Create the download PDF URL with query parameters
+    let downloadLink = '/admin/download-pdf?';
 
-    // Construct URL with query parameters
-    const url = new URL(window.location.origin + "/admin/salesreport");
-    if (startDate) url.searchParams.append("startDate", startDate);
-    if (endDate) url.searchParams.append("endDate", endDate);
-    if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
+    if (startDate) {
+        downloadLink += `startDate=${startDate}&`;
+    }
+    if (endDate) {
+        downloadLink += `endDate=${endDate}&`;
+    }
+    if (quickFilter) {
+        downloadLink += `quickFilter=${quickFilter}&`;
+    }
 
-    // Log the constructed URL
-    console.log("Constructed URL:", url.toString());
+    // Remove the last '&' from the URL if there are query parameters
+    downloadLink = downloadLink.endsWith('&') ? downloadLink.slice(0, -1) : downloadLink;
 
-    // Redirect to the constructed URL
-    window.location.href = url.toString();
-});
+    // Set the generated URL to the download PDF button
+    document.getElementById('downloadPdfButton').href = downloadLink;
+}
 
-// Handle pagination links
-document.querySelectorAll(".pagination a").forEach(link => {
-    link.addEventListener("click", function (event) {
-        event.preventDefault(); // Prevent default link click
-        console.log("Pagination link clicked:", this.getAttribute("href")); // Log when a pagination link is clicked
+// Initialize the download link when the page loads
+window.addEventListener('load', generateDownloadLink);
 
-        // Navigate to the page URL
-        window.location.href = this.getAttribute("href");
-    });
-});
 
-// Handle download buttons for PDF and Excel
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM fully loaded"); // Log when DOM is loaded
 
-    const loadingIndicator = document.getElementById("loadingIndicator"); // Optional loading indicator
+    function generateDownloadExcelLink() {
+        const startDate = document.querySelector('input[name="startDate"]').value;
+        const endDate = document.querySelector('input[name="endDate"]').value;
+        const quickFilter = document.querySelector('select[name="quickFilter"]').value;
 
-    // Function to handle download
-    function handleDownload(event, fileType) {
-        event.preventDefault();
-        console.log(`Download initiated for ${fileType} file`); // Log when a download is initiated
+        let downloadLink = '/admin/download-excel?';
 
-        // Show loading indicator
-        if (loadingIndicator) {
-            loadingIndicator.style.display = "block";
-            console.log("Loading indicator shown"); // Log when the loading indicator is shown
+        if (startDate) {
+            downloadLink += `startDate=${startDate}&`;
+        }
+        if (endDate) {
+            downloadLink += `endDate=${endDate}&`;
+        }
+        if (quickFilter) {
+            downloadLink += `quickFilter=${quickFilter}&`;
         }
 
-        // Get current URL query parameters
-        const urlParams = new URLSearchParams(window.location.search);
+        downloadLink = downloadLink.endsWith('&') ? downloadLink.slice(0, -1) : downloadLink;
 
-        // Construct the download URL with query parameters
-        const downloadUrl = `/admin/download-${fileType}?${urlParams.toString()}`;
-        console.log("Download URL:", downloadUrl); // Log the download URL
-        // Trigger the download
-        window.location.href = downloadUrl;
-
-        // Hide the loading indicator after a short delay (optional)
-        setTimeout(() => {
-            if (loadingIndicator) {
-                loadingIndicator.style.display = "none";
-                console.log("Loading indicator hidden"); // Log when the loading indicator is hidden
-            }
-        }, 3000);
+        document.getElementById('downloadExcelButton').href = downloadLink;
     }
 
-    // Get download buttons
-    const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
-    const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
-
-    // Log download buttons for debugging
-    console.log("Download PDF Button:", downloadPDFButton);
-    console.log("Download Excel Button:", downloadExcelButton);
-
-    // Get current URL query parameters and dynamically update the download buttons
-    const urlParams = new URLSearchParams(window.location.search);
-    if (downloadPDFButton) {
-        downloadPDFButton.href = `/admin/sales/download-pdf?${urlParams.toString()}`;
-        console.log("Updated PDF download URL:", downloadPDFButton.href); // Log updated URL
-        downloadPDFButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            console.log("PDF download button clicked"); // Log when the PDF download button is clicked
-            handleDownload(event, "pdf");
-        });
-    }
-
-    if (downloadExcelButton) {
-        downloadExcelButton.href = `/admin/sales/download-excel?${urlParams.toString()}`;
-        console.log("Updated Excel download URL:", downloadExcelButton.href); // Log updated URL
-        downloadExcelButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            console.log("Excel download button clicked"); // Log when the Excel download button is clicked
-            handleDownload(event, "excel");
-        });
-    }
-});
-
+    document.getElementById('filterForm').addEventListener('change', generateDownloadExcelLink);
+    window.addEventListener('load', generateDownloadExcelLink);
 
 
 </script>

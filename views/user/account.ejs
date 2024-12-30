@@ -498,7 +498,7 @@
                           <button type="button" class="btn btn-danger btn-sm" onclick="retryPayment('<%= order.orderId %>','<%=order.totalPrice%>')">Retry Payment</button>
                       <%}else if(order.status==="processing"){%>
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel('<%= order.orderId %>')">Cancel Order</button>
-                      <%}else if(order.status==="completed"){%>
+                      <%}else if(order.status==="completed"||order.status==="Wallet-Payment"){%>
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel('<%= order.orderId %>')">Cancel Order</button>
                         </form>
                       <% }else if(order.status==="delivered"){%>

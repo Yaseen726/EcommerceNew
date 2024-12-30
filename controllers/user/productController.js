@@ -9,6 +9,7 @@ const mongoose = require("mongoose");
 const Razorpay = require("razorpay");
 const dotenv = require("dotenv").config();
 const crypto = require("crypto");
+const Wallet=require("../../models/walletSchema")
 
 const razorpayInstance = new Razorpay({
   key_id: process.env.KEY_ID,
@@ -371,13 +372,15 @@ const placeorder = async (req, res) => {
     let finalPrice = totalPrice;
     let items = [];
     let cart;
-
+   if(paymentMethod==="cod"){
     if(finalPrice>1000){
       return res.status(400).json({
         success:false,
         message:"Order Above 1000 Doesnt allowed for Cash on delivery User Another Mode "
       })
     }
+   }
+
 
     // Apply coupon discount if provided
     if (couponCode) {
@@ -474,6 +477,49 @@ const placeorder = async (req, res) => {
       }
 
       return res.json({ success: true, orderId: savedOrder.orderId });//changed gereeeee
+    }
+
+    //check for wallet payments
+    if (paymentMethod === "wallet") {
+      // Check if the user has enough balance in the wallet
+      const userWallet = await Wallet.findOne({ userId });
+      if (!userWallet || userWallet.balance < finalPrice) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Insufficient wallet balance" });
+      }
+
+      // Deduct amount from wallet
+      userWallet.balance -= finalPrice;
+      userWallet.transactions.push({
+        amount: finalPrice,
+        type: "debit",
+        description: "Order payment",
+      });
+      await userWallet.save();
+
+      // Create order with "paid" status
+      const order = new Order({
+        userId,
+        orderedItem: items,
+        totalPrice: finalPrice,
+        finalAmount: finalPrice,
+        address: selectedAddress._id,
+        invoiceDate: new Date(),
+        status: "Wallet-Payment", // Order marked as paid
+        discount:tempcoupon?.offerPrice||0,
+        couponApplied:!!tempcoupon
+      });
+
+      const savedOrder = await order.save();
+
+      // Clear the cart if wallet is used for payment
+      if (cart) {
+        cart.items = [];
+        await cart.save();
+      }
+
+      return res.json({ success: true, orderId: savedOrder.orderId });
     }
 
     // Razorpay payment initialization
