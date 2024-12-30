@@ -381,7 +381,13 @@ const addProductOffer = async (req, res) => {
         return res.status(400).json({status:false,message:"You already set a Category offer"})
     }
     const effectiveOffer = category ? Math.max(percentage, category.categoryOffer) : percentage;
-    product.salePrice = product.regularPrice - Math.floor(product.regularPrice * (effectiveOffer / 100));
+    console.log(effectiveOffer,"effectiveOffer from backend")
+    console.log(product.salePrice,"data before add product offer")
+    req.session.tempoffer=product.salePrice
+    console.log(req.session.tempoffer,"session for temp datas")
+    product.salePrice = product.salePrice - Math.floor(product.salePrice * (effectiveOffer / 100));
+    console.log(product.salePrice,"datas after product offer")
+
     await product.save();
     return res.json({ status: true ,message:"product Added successfully"});
     } catch (error) {
@@ -395,9 +401,10 @@ const removeProductOffer=async(req,res)=>{
     try {
     const {productId} = req.body;
     const findProduct = await Product.findOne({_id:productId});
-    findProduct.salePrice = findProduct.regularPrice;
+    findProduct.salePrice = req.session.tempoffer;
     findProduct.productOffer = 0;
     await findProduct.save();
+    req.session.tempoffer=null
     return res.json({status:true,message:"product Removed successfully"});
     } catch (error) {
         res.redirect('/admin/pagenotfound')
@@ -426,6 +433,54 @@ const deleteSingleImage = async (req,res) => {
     }
 }
 
+//order detailed page
+
+const loadOrderDetails = async (req, res) => {
+    try {
+        const { id } = req.params; // Order ID passed in the URL
+
+        // Fetch the order
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).render('404', { message: 'Order not found' });
+        }
+
+        // Fetch user details
+        const user = await User.findById(order.userId);
+
+        // Fetch address details
+        const address = await Address.findOne(
+            { userId: order.userId, "address._id": order.address },
+            { "address.$": 1 } // Fetch only the specific address
+        );
+
+        // Fetch ordered products
+        const orderedItems = await Promise.all(
+            order.orderedItem.map(async (item) => {
+                const product = await Product.findById(item.product);
+                return {
+                    ...item._doc,
+                    productName: product?.productName || 'Product not found',
+                    productImage: product?.productImage || ['default.jpg'],
+                    regularPrice: product?.regularPrice,
+                };
+            })
+        );
+
+        // Render the order details page
+        res.render('orderdetails', {
+            user,
+            order,
+            address: address?.address[0], // Single address object
+            orderedItems,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).render('500', { message: 'Internal Server Error' });
+    }
+};
+
+
 
 
 module.exports = {
@@ -443,5 +498,6 @@ module.exports = {
     editProduct,
     addProductOffer,
     removeProductOffer,
-    deleteSingleImage
+    deleteSingleImage,
+    loadOrderDetails
 };

@@ -1,29 +1,7 @@
 const Category=require("../../models/categorySchema")
 const Product=require("../../models/productSchema")
 
-// const categoryInfo = async (req, res) => {
-//     try {
-//         const perPage = 1; // Number of categories per page
-//         const page = parseInt(req.query.page) || 1; // Current page number (default: 1)
 
-//         const totalCategories = await Category.countDocuments(); // Total number of categories
-//         const totalPages = Math.ceil(totalCategories / perPage); // Calculate total pages
-
-//         // Fetch categories with pagination
-//         const cat = await Category.find({})
-//             .skip((page - 1) * perPage)
-//             .limit(perPage);
-
-//         res.render("category", {
-//             cat,
-//             currentPage: page,
-//             totalPages,
-//         });
-//     } catch (error) {
-//         console.error("Error Loading Category info", error);
-//         res.status(500).send("Server Error");
-//     }
-// };
 const categoryInfo = async (req, res) => {
     try {
         const perPage = 3; // Number of categories per page
@@ -115,30 +93,6 @@ const getEditCategory = async (req,res) => {
     }
 }
 
-// const EditCategories = async (req, res) => {
-//     const id = req.query.id;
-
-//     if (!id) {
-//         return res.status(400).json({ success: false, message: "Category ID is missing" });
-//     }
-
-//     try {
-//         const currentCategory = await Category.findById(id); 
-
-        
-//         if (!currentCategory) {
-//             return res.status(404).json({ success: false, message: "Category not found" });
-//         }
-
-//         const { name, description } = req.body;
-//         const updateCategory = await Category.findByIdAndUpdate(id, { name, description }, { new: true });
-
-//         return res.status(200).json({ success: true, message: "Category updated successfully" });
-//     } catch (error) {
-//         console.log("Error:", error);
-//         return res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
 
 const EditCategories = async (req, res) => {
     const id = req.query.id;

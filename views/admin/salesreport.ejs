@@ -173,62 +173,168 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
 <script>
     // Function to handle filter form submission
-    document.getElementById("filterForm").addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
+    // document.getElementById("filterForm").addEventListener("submit", function (event) {
+    //     event.preventDefault(); // Prevent default form submission
 
-        // Get form inputs
-        const startDate = document.querySelector('input[name="startDate"]').value;
-        const endDate = document.querySelector('input[name="endDate"]').value;
-        const quickFilter = document.querySelector('select[name="quickFilter"]').value;
+    //     // Get form inputs
+    //     const startDate = document.querySelector('input[name="startDate"]').value;
+    //     const endDate = document.querySelector('input[name="endDate"]').value;
+    //     const quickFilter = document.querySelector('select[name="quickFilter"]').value;
 
-        // Construct URL with query parameters
-        const url = new URL(window.location.origin + "/admin/salesreport");
-        if (startDate) url.searchParams.append("startDate", startDate);
-        if (endDate) url.searchParams.append("endDate", endDate);
-        if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
+    //     // Construct URL with query parameters
+    //     const url = new URL(window.location.origin + "/admin/salesreport");
+    //     if (startDate) url.searchParams.append("startDate", startDate);
+    //     if (endDate) url.searchParams.append("endDate", endDate);
+    //     if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
 
-        // Redirect to the constructed URL
-        window.location.href = url.toString();
+    //     // Redirect to the constructed URL
+    //     window.location.href = url.toString();
+    // });
+
+    // // Function to handle pagination
+    // document.querySelectorAll(".pagination a").forEach(link => {
+    //     link.addEventListener("click", function (event) {
+    //         event.preventDefault(); // Prevent default link click
+
+    //         // Navigate to the page URL
+    //         window.location.href = this.getAttribute("href");
+    //     });
+    // });
+
+    // // Additional feature: Highlight active menu (if applicable)
+    // const activeLink = document.querySelector(`.nav-link[href="/admin/salesreport"]`);
+    // if (activeLink) {
+    //     activeLink.classList.add("active");
+    // }
+
+    // document.addEventListener('DOMContentLoaded', function () {
+
+    //     const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
+    //     const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
+    //     const loadingIndicator = document.getElementById('loadingIndicator'); // assuming you have a loading indicator
+
+    //     if (downloadPDFButton) {
+    //         downloadPDFButton.addEventListener('click', function (event) {
+    //             event.preventDefault();
+    //             loadingIndicator.style.display = 'block'; // Show loading indicator
+    //             window.location.href = '/admin/download-pdf'; // Start PDF download
+    //         });
+    //     }
+
+    //     if (downloadExcelButton) {
+    //         downloadExcelButton.addEventListener('click', function (event) {
+    //             event.preventDefault();
+    //             loadingIndicator.style.display = 'block'; // Show loading indicator
+    //             window.location.href = '/admin/download-excel'; // Start Excel download
+    //         });
+    //     }
+
+    // });
+
+  // Add event listeners for form submission and pagination
+  document.getElementById("filterForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent default form submission
+    console.log("Form submitted"); // Log when the form is submitted
+
+    // Get form inputs
+    const startDate = document.querySelector('input[name="startDate"]').value;
+    const endDate = document.querySelector('input[name="endDate"]').value;
+    const quickFilter = document.querySelector('select[name="quickFilter"]').value;
+
+    console.log("Start Date:", startDate); // Log start date
+    console.log("End Date:", endDate); // Log end date
+    console.log("Quick Filter:", quickFilter); // Log quick filter
+
+    // Construct URL with query parameters
+    const url = new URL(window.location.origin + "/admin/salesreport");
+    if (startDate) url.searchParams.append("startDate", startDate);
+    if (endDate) url.searchParams.append("endDate", endDate);
+    if (quickFilter) url.searchParams.append("quickFilter", quickFilter);
+
+    // Log the constructed URL
+    console.log("Constructed URL:", url.toString());
+
+    // Redirect to the constructed URL
+    window.location.href = url.toString();
+});
+
+// Handle pagination links
+document.querySelectorAll(".pagination a").forEach(link => {
+    link.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent default link click
+        console.log("Pagination link clicked:", this.getAttribute("href")); // Log when a pagination link is clicked
+
+        // Navigate to the page URL
+        window.location.href = this.getAttribute("href");
     });
+});
 
-    // Function to handle pagination
-    document.querySelectorAll(".pagination a").forEach(link => {
-        link.addEventListener("click", function (event) {
-            event.preventDefault(); // Prevent default link click
+// Handle download buttons for PDF and Excel
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM fully loaded"); // Log when DOM is loaded
 
-            // Navigate to the page URL
-            window.location.href = this.getAttribute("href");
-        });
-    });
+    const loadingIndicator = document.getElementById("loadingIndicator"); // Optional loading indicator
 
-    // Additional feature: Highlight active menu (if applicable)
-    const activeLink = document.querySelector(`.nav-link[href="/admin/salesreport"]`);
-    if (activeLink) {
-        activeLink.classList.add("active");
+    // Function to handle download
+    function handleDownload(event, fileType) {
+        event.preventDefault();
+        console.log(`Download initiated for ${fileType} file`); // Log when a download is initiated
+
+        // Show loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = "block";
+            console.log("Loading indicator shown"); // Log when the loading indicator is shown
+        }
+
+        // Get current URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Construct the download URL with query parameters
+        const downloadUrl = `/admin/download-${fileType}?${urlParams.toString()}`;
+        console.log("Download URL:", downloadUrl); // Log the download URL
+        // Trigger the download
+        window.location.href = downloadUrl;
+
+        // Hide the loading indicator after a short delay (optional)
+        setTimeout(() => {
+            if (loadingIndicator) {
+                loadingIndicator.style.display = "none";
+                console.log("Loading indicator hidden"); // Log when the loading indicator is hidden
+            }
+        }, 3000);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    // Get download buttons
+    const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
+    const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
 
-        const downloadPDFButton = document.querySelector('a[href="/admin/sales/download-pdf"]');
-        const downloadExcelButton = document.querySelector('a[href="/admin/sales/download-excel"]');
-        const loadingIndicator = document.getElementById('loadingIndicator'); // assuming you have a loading indicator
+    // Log download buttons for debugging
+    console.log("Download PDF Button:", downloadPDFButton);
+    console.log("Download Excel Button:", downloadExcelButton);
 
-        if (downloadPDFButton) {
-            downloadPDFButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                loadingIndicator.style.display = 'block'; // Show loading indicator
-                window.location.href = '/admin/download-pdf'; // Start PDF download
-            });
-        }
+    // Get current URL query parameters and dynamically update the download buttons
+    const urlParams = new URLSearchParams(window.location.search);
+    if (downloadPDFButton) {
+        downloadPDFButton.href = `/admin/sales/download-pdf?${urlParams.toString()}`;
+        console.log("Updated PDF download URL:", downloadPDFButton.href); // Log updated URL
+        downloadPDFButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            console.log("PDF download button clicked"); // Log when the PDF download button is clicked
+            handleDownload(event, "pdf");
+        });
+    }
 
-        if (downloadExcelButton) {
-            downloadExcelButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                loadingIndicator.style.display = 'block'; // Show loading indicator
-                window.location.href = '/admin/download-excel'; // Start Excel download
-            });
-        }
+    if (downloadExcelButton) {
+        downloadExcelButton.href = `/admin/sales/download-excel?${urlParams.toString()}`;
+        console.log("Updated Excel download URL:", downloadExcelButton.href); // Log updated URL
+        downloadExcelButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            console.log("Excel download button clicked"); // Log when the Excel download button is clicked
+            handleDownload(event, "excel");
+        });
+    }
+});
 
-    });
+
 
 </script>

@@ -1,5 +1,66 @@
 <%- include("../partials/admin/header.ejs") %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    /* Style for the eye button */
+/* Style for the main button */
+.btn-info {
+    color: #fff; /* White text */
+    background-color: #17a2b8; /* Bootstrap info color */
+    border: none; /* Remove border */
+    padding: 6px 12px; /* Adjust padding for better spacing */
+    border-radius: 8px; /* Smooth, rounded corners */
+    display: inline-flex; /* Center icon and text */
+    align-items: center; /* Align content vertically */
+    justify-content: center; /* Align content horizontally */
+    cursor: pointer; /* Show pointer on hover */
+    text-decoration: none; /* Remove underline from link */
+    font-size: 14px; /* Slightly larger font */
+    transition: all 0.3s ease; /* Smooth transitions */
+}
 
+/* Style for the eye icon */
+.btn-info i {
+    font-size: 18px; /* Icon size */
+    margin-left: 8px; /* Add spacing between text and icon */
+    vertical-align: middle; /* Align icon with text */
+}
+
+/* Hover effect for the button */
+.btn-info:hover {
+    background-color: #138496; /* Darker info color */
+    transform: translateY(-2px); /* Slight upward movement */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Add shadow */
+}
+
+/* Focus effect */
+.btn-info:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.5); /* Highlight outline */
+}
+
+/* Ensure the link inside the button looks like a button */
+.btn-info a {
+    color: #fff; /* White text for the link */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+}
+
+/* Ensure hover effect on the entire button, not just the link */
+.btn-info a:hover {
+    text-decoration: none; /* Maintain no underline */
+    color: #f8f9fa; /* Slightly lighter text color */
+}
+
+/* Custom class for alignment */
+.view-details {
+    display: flex;
+    justify-content: center; /* Center the button in its container */
+    align-items: center; /* Center icon and text */
+    gap: 5px; /* Add spacing between elements */
+}
+
+
+</style>
 <div class="container mt-4">
     <h2>Orders Management</h2>
     <% if (orders && orders.length > 0) { %>
@@ -19,7 +80,13 @@
                 <% orders.forEach(order => { %>
                     <tr>
                         <!-- Order ID -->
-                        <td><%= order.orderId %></td>
+                        <td><%= order.orderId %>
+                            <button class="btn btn-info btn-sm view-details">
+                                <a href="order/<%= order._id %>">View Details</a>
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+
 
                         <!-- Customer Name -->
                         <td>
@@ -69,6 +136,7 @@
                                 </select>
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </form>
+
                         </td>
                     </tr>
                 <% }); %>

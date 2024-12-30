@@ -359,7 +359,7 @@ body {
                     <select id="cat-filter" class="sort-select" onchange="catFilter()">
                         <option value="all-categories" <%= categoryFilter === 'all-categories' ? 'selected' : '' %>>All Categories</option>
                         <% categories.forEach(category => { %>
-                            <option value="<%= category._id %>" <%= categoryFilter === category._id ? 'selected' : '' %>>
+                            <option value="<%= category._id %>" <%= categoryFilter === category._id ? 'selected' : '' %> <%= !category.isListed ? 'disabled' : '' %> >
                                 <%= category.name %>
                             </option>
                         <% }); %>
@@ -405,6 +405,10 @@ body {
                             </div>
                         <% }); %>
                     </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
+                    
                 </div>
             </div>
         </div>
@@ -503,18 +507,31 @@ function handleSortChange() {
 
 
 
-
-
 function updateProductList(products) {
+    console.log(products,"the first products")
+    // Parse the categories data passed from the server
+    const categories = JSON.parse(`<%- JSON.stringify(categories) %>`);
+    console.log("Categories data:", categories);
+
+    // Filter categories to include only those with isListed: true
+    const listedCategories = categories.filter(category => category.isListed);
+    console.log("Listed categories:", listedCategories);
+
+    // Get the listed category IDs for filtering products
+    const listedCategoryIds = listedCategories.map(category => category._id);
+
+    // Filter products to include only those belonging to listed categories
+    const filteredProducts = products.filter(product => listedCategoryIds.includes(product.category));
+    console.log("Filtered products:", filteredProducts)
     const productsContainer = document.getElementById('card');
     productsContainer.innerHTML = ''; // Clear existing content
 
-    if (!Array.isArray(products) || products.length === 0) {
+    if (!Array.isArray(filteredProducts) || filteredProducts.length === 0) {
         productsContainer.innerHTML = '<p>No products found</p>'; // Show a message if no products found
         return;
     }
-
-    products.forEach(product => {
+      
+    filteredProducts.forEach(product => {
         // Create the product card container
         const productCard = document.createElement('div');
         productCard.className = 'product-card';
@@ -553,12 +570,12 @@ function updateProductList(products) {
 
         // Append the product card to the container
         productsContainer.appendChild(productCard);
+
     });
 }
 
 function catFilter() {
     const selectedCategory = document.getElementById('cat-filter').value;
-
     // Send the selected category as a query parameter
     fetch(`/filter-by-category?category=${selectedCategory}`, {
         method: 'GET',
@@ -574,26 +591,60 @@ function catFilter() {
 const searchForm = document.getElementById('search-form');
     const searchInput = searchForm.querySelector('input[name="query"]');
     
-    // Add an event listener for form submission
-    searchForm.addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission behavior
 
-        const query = searchInput.value.trim();  // Get the query value
-        
-        // Only perform the search if there is a query
-        if (query) {
-            fetch(`/search?query=${query}`, { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.products) {
-                        updateProductList(data.products);  // Update the product list with the response
-                    } else {
-                        console.log("No products found.");
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    });
+    searchForm.addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent the default form submission behavior
+
+    const query = searchInput.value.trim();  // Get the query value
+    
+    // Check if the query is empty
+    if (!query) {
+        // Reload the page to show the default product list
+        handleSortChange()
+        return;
+    }
+
+    // If there is a query, perform the search
+    fetch(`/search?query=${query}`, { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.products) {
+                updateProductList(data.products);  // Update the product list with the response
+            } else {
+                console.log("No products found.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+    function fetchPage(page) {
+  const limit = 10; // Number of items per page
+fetch(`/paginate?page=${page}&limit=${limit}`, {
+    method: "GET",
+})
+    .then((response) => response.json())
+    .then((data) => {
+    updateProductList(data.products);
+    updatePagination(data.totalPages, data.currentPage);
+    })
+    .catch((error) => console.error("Error fetching page:", error));
+}
+
+function updatePagination(totalPages, currentPage) {
+  const paginationContainer = document.getElementById("pagination");
+  paginationContainer.innerHTML = ""; // Clear existing pagination
+
+  for (let i = 1; i <= totalPages; i++) {
+    const pageItem = document.createElement("li");
+    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
+    pageItem.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="fetchPage(${i})">${i}</a>`;
+    paginationContainer.appendChild(pageItem);
+  }
+}
+
+// Fetch the first page initially
+fetchPage(1);
+
 
 
 

@@ -18,7 +18,6 @@ const loadHomepage = async (req, res) => {
 
     // Fetch the categories
     const categories = await Category.find({ isListed: true });
-
     // Get the category filter from the query string (default is 'all-categories')
     const categoryFilter = req.query.category || 'all-categories';
     const searchQuery = req.query.query || '';  // Get the search query
@@ -34,7 +33,13 @@ const loadHomepage = async (req, res) => {
           { description: { $regex: searchQuery, $options: 'i' } }    // Case-insensitive search by product description
         ]
       });
-    } else {
+    }else if(categoryFilter!=="all-categories"){
+   productData=await Product.find({
+    isBlocked:false,
+    category:categoryFilter
+   })
+    }
+     else {
       productData = await Product.find({
         isBlocked: false,
         category: { $in: categories.map(category => category._id) },
@@ -51,6 +56,7 @@ const loadHomepage = async (req, res) => {
 
     // Get the first 7 products after sorting
     productData = productData.slice(0, 7);
+
 
     // Handle user data
     let userData;
@@ -70,12 +76,19 @@ const loadHomepage = async (req, res) => {
       categoryFilter: categoryFilter,
       searchQuery: searchQuery
     });
+    console.log(productData,"the product data final")
+    console.log(categories,"the categories final")
+    console.log(categoryFilter,"the categoryFilter final")
+    console.log(searchQuery,"the search query final")
 
   } catch (error) {
     console.log("Error loading homepage:", error);
     res.status(500).send("Server error");
   }
 };
+
+
+//async for home page logic 
 
 
 const categoryFilter = async (req, res) => {
@@ -85,9 +98,9 @@ const categoryFilter = async (req, res) => {
     let products;
 
     if (category === 'all-categories') {
-      products = await Product.find({});
+      products = await Product.find({isBlocked:false});
     } else {
-      products = await Product.find({ category: category});
+      products = await Product.find({ category: category,isBlocked:false});
     }
 
     res.json({ products });
@@ -99,12 +112,12 @@ const categoryFilter = async (req, res) => {
 };
 
 
+
 //search products
 
 const searchProducts = async (req, res) => {
   try {
     const searchQuery = req.query.query || '';  
-
     let products;
     if (searchQuery) {
       products = await Product.find({
@@ -115,7 +128,8 @@ const searchProducts = async (req, res) => {
         ]
       });
     } else {
-      products = await Product.find({ isBlocked: false });
+      products = await Product.find({ isBlocked: false,
+      });
     }
 
     if (products.length === 0) {
@@ -158,13 +172,47 @@ const sortProduct = async (req, res) => {
         sortCriteria = { createdAt: -1 };
     }
 
-    const products = await Product.find().sort(sortCriteria);
-    res.json({ products });
+     // Find listed categories
+
+     // Query for products that meet the criteria
+     const products = await Product.find({
+       isBlocked: false,
+     }).sort(sortCriteria);
+ 
+     res.json({ products });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+//paginations
+
+const paginateProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10; 
+    const skip = (page - 1) * limit;
+
+    const totalProducts = await Product.countDocuments({ isBlocked: false });
+    const products = await Product.find({ isBlocked: false })
+      .sort({ createdAt: -1 }) 
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.json({
+      products,
+      totalPages,
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error("Error during pagination:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 
 //page error
@@ -492,6 +540,7 @@ module.exports = {
   resendOtp,
   resetPassword,
   categoryFilter,
-  searchProducts
+  searchProducts,
+  paginateProducts,
 
 };

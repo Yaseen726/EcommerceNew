@@ -443,6 +443,7 @@ const placeorder = async (req, res) => {
         }
       }
     }
+    console.log(items,"checking is there any quantity in items")
 
     
 
@@ -464,6 +465,7 @@ const placeorder = async (req, res) => {
       });
 
       const savedOrder = await order.save();
+      console.log(savedOrder,"checking the quantity of cart")
 
       // Clear the cart if COD is selected
       if (cart) {
@@ -471,7 +473,7 @@ const placeorder = async (req, res) => {
         await cart.save();
       }
 
-      return res.json({ success: true, orderId: savedOrder._id });
+      return res.json({ success: true, orderId: savedOrder.orderId });//changed gereeeee
     }
 
     // Razorpay payment initialization
@@ -509,7 +511,7 @@ const placeorder = async (req, res) => {
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
       },
-      orderId: savedOrder._id,
+      orderId: savedOrder.orderId,
     });
   } catch (error) {
     console.error("Error placing order:", error);

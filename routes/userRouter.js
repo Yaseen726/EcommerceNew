@@ -41,7 +41,7 @@ passport.authenticate("google", { failureRedirect: "/signup" }),
 router.get("/sort",userController.sortProduct)
 router.get('/filter-by-category',userController.categoryFilter)
 router.get("/search",userController.searchProducts)
-
+router.get('/paginate',userController.paginateProducts);
 //login logout
 router.get("/login", userController.loadlogin);
 router.post("/login",userController.login)
