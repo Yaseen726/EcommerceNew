@@ -21,9 +21,13 @@
                 <p><strong>Order ID:</strong><%=order.orderId%></p>
                 <p><strong>Invoice Date:</strong> <%= new Date(order.invoiceDate).toLocaleString() %></p>
                 <p><strong>Status:</strong> 
-                    <span class="badge bg-<%= order.status === 'cancelled' ? 'danger' : 'success' %>">
-                        <%= order.status %>
-                    </span>
+                    <span 
+                    class="badge bg-<%= 
+                        order.status === 'delivered' ? 'success' : 
+                        (order.status === 'cancelled' ? 'danger' : 'warning') 
+                    %>">
+                    <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                </span>
                 </p>
                 <p><strong>Total Price:</strong> ₹<%= order.totalPrice %></p>
                 <p><strong>Discount:</strong> ₹<%= order.discount %></p>
@@ -42,11 +46,6 @@
                     <p>Mode:Cash On Delivery</p>
                     <p><strong>Order ID:</strong><%=order.orderId%></p>
                 <%}%>
-                <p><strong>Status:</strong> 
-                    <span class="badge bg-<%= order.status === 'cancelled' ? 'danger' : 'success' %>">
-                        <%= order.status %>
-                    </span>
-                </p>
             </div>
         </div>
 
@@ -58,7 +57,7 @@
                     <ul class="list-group">
                         <% orderedItems.forEach(item => { %>
                             <li class="list-group-item d-flex align-items-center">
-                                <img src="/uploads/<%= item.productImage[0] %>" 
+                                <img src="/uploads/re-image/<%= item.productImage[0] %>" 
                                      alt="<%= item.productName %>" 
                                      class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                 <div>
