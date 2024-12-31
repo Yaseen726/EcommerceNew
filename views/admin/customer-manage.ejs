@@ -146,11 +146,21 @@
                         <td><%= data[i].phone %></td>
                         <td>
                             <% if (data[i].isBlocked) { %>
-                                <a href="/admin/blockunblockcust?id=<%= data[i]._id %>" 
-                                   class="btn btn-danger text-white" style="width: 80px;">Unblock</a>
+                                <button 
+                                    class="btn btn-danger text-white" 
+                                    style="width: 80px;" 
+                                    onclick="confirmAction('<%= data[i]._id %>', 'unblock')"
+                                >
+                                    Unblock
+                                </button>
                             <% } else { %>
-                                <a href="/admin/blockunblockcust?id=<%= data[i]._id %>" 
-                                   class="btn btn-success text-white" style="width: 80px;">Block</a>
+                                <button 
+                                    class="btn btn-success text-white" 
+                                    style="width: 80px;" 
+                                    onclick="confirmAction('<%= data[i]._id %>', 'block')"
+                                >
+                                    Block
+                                </button>
                             <% } %>
                         </td>
                     </tr>
@@ -174,5 +184,29 @@
         </ul>
     </nav>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    function confirmAction(userId, action) {
+        const actionText = action === 'block' ? 'block' : 'unblock';
+        const actionColor = action === 'block' ? 'red' : 'green';
+
+        Swal.fire({
+            title: `Are you sure?`,
+            text: `You are about to ${actionText} this user.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: actionColor,
+            cancelButtonColor: "#d33",
+            confirmButtonText: `Yes, ${actionText}!`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the block/unblock route
+                window.location.href = `/admin/blockunblockcust?id=${userId}`;
+            }
+        });
+    }
+</script>
+
 
 

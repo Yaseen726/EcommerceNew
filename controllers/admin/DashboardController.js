@@ -143,27 +143,33 @@ async function getMostSellingProducts() {
         deliveredOrders.forEach(order => {
             order.orderedItem.forEach(item => {
                 const productId = item.product.toString(); // Assuming `product` is the ObjectId
+                const quantitySold = item.quantity; // Quantity of the product in the order
 
-                // Step 3: Count the products
+                // Step 3: Accumulate the total quantity sold for the product
                 if (productSales[productId]) {
-                    productSales[productId]++;
+                    productSales[productId] += quantitySold; // Add the quantity to the total count
                 } else {
-                    productSales[productId] = 1;
+                    productSales[productId] = quantitySold; // Initialize the count with the quantity
                 }
             });
         });
-        console.log(productSales,"product sales side")
+        console.log(productSales, "product sales side");
 
-        // Step 4: Sort the products by the sales count and limit the result to top 10
+        // Step 4: Sort the products by the total quantity sold and limit the result to top 10
         const sortedProductSales = Object.entries(productSales)
-            .sort((a, b) => b[1] - a[1])  // Sort by sales count in descending order
-            .slice(0, 10); // Get the top 10
-    console.log(sortedProductSales,"top sorted product sales")
+            .sort((a, b) => b[1] - a[1])  // Sort by quantity sold in descending order
+            .slice(0, 10); // Get the top 10 products
+
+        console.log(sortedProductSales, "top sorted product sales");
+
         // Step 5: Fetch product details for the top-selling products
         const topSellingProducts = await Product.find({
             _id: { $in: sortedProductSales.map(item => item[0]) }
         });
-    console.log(topSellingProducts,"top topSellingProducts")
+
+        console.log(topSellingProducts, "top topSellingProducts");
+
+        // Step 6: Return the product data along with the total quantity sold
         return topSellingProducts.map(product => ({
             productId: product._id.toString(),
             productName: product.productName,
@@ -175,6 +181,7 @@ async function getMostSellingProducts() {
         return [];
     }
 }
+
 
 async function getMostSellingCategories() {
     try {

@@ -17,7 +17,7 @@
                 <% products.forEach(product => { %>
                     <tr>
                         <td><%= product.productName %></td>
-                        <td><%= product.category %></td>
+                        <td><%= product.category.name %></td>
                         <td>₹<%= product.salePrice %></td>
                         <td>
                             <input type="number" id="quantity-<%= product._id %>" value="<%= product.quantity %>" class="form-control" min="0">

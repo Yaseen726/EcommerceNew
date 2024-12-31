@@ -85,26 +85,7 @@ const addProduct = async (req,res) => {
         res.redirect('/pagenotfound')
     }
 }
-//get product
-// const getproduct = async (req, res) => {
-//     try {
-//         const productData=await Product.find().populate("category")
-//         const category = await Category.find({ isListed: true });
 
-//         if (category) {
-//             res.render("products", {
-//                 data: productData,   
-//                 cat: category,       
-//             });
-//         } else {
-//             res.redirect("/pagenotfound")
-//         }
-
-//     } catch (error) {
-//         console.error("Error fetching products:", error);
-//         res.status(500).send("Internal Server Error");
-//     }
-// }
 
 const getproduct = async (req, res) => {
     try {
@@ -321,6 +302,7 @@ const loadstock=async(req,res)=>{
         const skip=(page-1)*limit
 
         const products = await Product.find()
+        .populate("category")
         .skip(skip)
         .limit(limit); 
         const totalProducts=await Product.countDocuments()
@@ -363,53 +345,84 @@ const updatestock=async(req,res)=>{
 }
 
 
-//product offer 
 
 const addProductOffer = async (req, res) => {
     try {
-    const { productId, percentage } = req.body;
-    const product = await Product.findById(productId);
+        const { productId, percentage } = req.body;
 
-    if (!product) {
-    return res.status(404).json({ status: false, message: "Product not found" });
-    }
+        // Fetch the product by ID
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ status: false, message: "Product not found" });
+        }
 
-    product.productOffer = parseInt(percentage, 10);
-    const category = await Category.findById(product.category);
+        // Fetch the category associated with the product
+        const category = await Category.findById(product.category);
+        if (category && category.categoryOffer > 0) {
+            return res.status(400).json({
+                status: false,
+                message: "Cannot set product offer. The category already has an active offer.",
+            });
+        }
 
-    if(category.categoryOffer>0){
-        return res.status(400).json({status:false,message:"You already set a Category offer"})
-    }
-    const effectiveOffer = category ? Math.max(percentage, category.categoryOffer) : percentage;
-    console.log(effectiveOffer,"effectiveOffer from backend")
-    console.log(product.salePrice,"data before add product offer")
-    req.session.tempoffer=product.salePrice
-    console.log(req.session.tempoffer,"session for temp datas")
-    product.salePrice = product.salePrice - Math.floor(product.salePrice * (effectiveOffer / 100));
-    console.log(product.salePrice,"datas after product offer")
+        // Set the product offer
+       
+        const productOffer = parseInt(percentage, 10);
+        product.productOffer = productOffer;
+        product.salePrice = product.salePrice - Math.floor(product.salePrice * (productOffer / 100));
 
-    await product.save();
-    return res.json({ status: true ,message:"product Added successfully"});
+        // Save the updated product
+        await product.save();
+
+        return res.json({ status: true ,message:"product Added successfully"});
     } catch (error) {
-    console.error("Error adding product offer:", error);
-    res.status(500).json({ status: false, message: "Internal server error" });
+        console.error("Error in addProductOffer:", error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
 };
 
-//rmove Product offer
-const removeProductOffer=async(req,res)=>{
+
+const removeProductOffer = async (req, res) => {
     try {
-    const {productId} = req.body;
-    const findProduct = await Product.findOne({_id:productId});
-    findProduct.salePrice = req.session.tempoffer;
-    findProduct.productOffer = 0;
-    await findProduct.save();
-    req.session.tempoffer=null
-    return res.json({status:true,message:"product Removed successfully"});
+        const { productId } = req.body;
+
+        // Fetch the product by ID
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ status: false, message: "Product not found" });
+        }
+
+        // Check if the product has an active offer
+        if (product.productOffer === 0) {
+            return res.status(400).json({
+                status: false,
+                message: "No active product offer to remove.",
+            });
+        }
+
+        // Revert the sale price to its original price before the product-specific offer
+        const offerPercentage = product.productOffer;
+        product.salePrice = product.salePrice / (1 - offerPercentage / 100);
+
+        // Reset the product offer
+        product.productOffer = 0;
+
+        // Save the updated product
+        await product.save();
+
+        // Return the updated product data
+        return res.status(200).json({
+            status: true,
+            message: "Product offer removed successfully",
+            product, // Include updated product data
+        });
     } catch (error) {
-        res.redirect('/admin/pagenotfound')
+        console.error("Error in removeProductOffer:", error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
-}
+};
+
+
 
 //delete single image
 
