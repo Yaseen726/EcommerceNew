@@ -90,6 +90,8 @@ const loadSalesReport = async (req, res) => {
     }
 };
 
+const puppeteer = require('puppeteer');
+
 const DownloadPdf = async (req, res) => {
     try {
         const { startDate, endDate, quickFilter } = req.query;
@@ -172,8 +174,12 @@ const DownloadPdf = async (req, res) => {
             </html>
         `;
 
-        // Generate the PDF using Puppeteer instead of html-pdf
-        const browser = await puppeteer.launch();
+        // Generate the PDF using Puppeteer
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: true  // Make sure headless mode is enabled for server-side PDF generation
+        });
+
         const page = await browser.newPage();
         await page.setContent(htmlContent);
         const pdfBuffer = await page.pdf({ format: 'A4' });
@@ -188,6 +194,7 @@ const DownloadPdf = async (req, res) => {
         res.status(500).send("Server error");
     }
 };
+
 
 
 
