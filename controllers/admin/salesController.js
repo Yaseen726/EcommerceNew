@@ -90,7 +90,6 @@ const loadSalesReport = async (req, res) => {
     }
 };
 
-const puppeteer = require('puppeteer');
 
 const DownloadPdf = async (req, res) => {
     try {
