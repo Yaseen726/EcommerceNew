@@ -58,16 +58,16 @@ const UserBlockUnblock=async(req,res)=>{
         const state=findUser.isBlocked
         if(state){
             await User.updateOne({_id:id},{$set:{isBlocked:false}})
-            res.redirect("/admin/users")
         }
         else{
             await User.updateOne({_id:id},{$set:{isBlocked:true}})
-            res.redirect("/admin/users")
         }
+        res.redirect("/admin/users")
     } catch (error) {
-        
+        console.error("error in block unblock",error)
     }
 }
+
 
 
 module.exports={

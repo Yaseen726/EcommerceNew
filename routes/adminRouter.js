@@ -43,7 +43,7 @@ adminRoutes.post("/editproduct/:id",adminAuth,productController.uploads.array('i
 adminRoutes.post("/addproductoffer",adminAuth,productController.addProductOffer)
 adminRoutes.post("/removeproductoffer",adminAuth,productController.removeProductOffer)
 adminRoutes.post("/deleteimage",adminAuth,productController.deleteSingleImage)
-adminRoutes.get("/order/:id",productController.loadOrderDetails)
+adminRoutes.get("/order/:id",adminAuth,productController.loadOrderDetails)
 
 //ordermanagement
 adminRoutes.get("/orders",adminAuth,productController.orders)

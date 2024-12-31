@@ -13,6 +13,7 @@ router.use(async(req, res, next) => {
     res.locals.user = userData || null;
     next();
 });
+
 router.get("/pagenotfound", userController.pagenotfound);
 router.get("/", userController.loadHomepage);
 
@@ -103,6 +104,6 @@ router.post("/wallet/add-money",userAuth,walletController.addWalletMoney)
 //retrypayments
 router.post("/account/create-retry-razorpay-order",profileController.RetryPayment)
 router.post("/account/payment-success/:orderId",profileController.verifyPayment)
-router.get('/order/:id/details',profileController.loadOrderDetailsModal);
+router.get('/order/:id/details',userAuth,profileController.loadOrderDetailsModal);
 
 module.exports = router;

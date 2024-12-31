@@ -1,22 +1,6 @@
 const User = require("../models/userSchema");
 const mongoose=require("mongoose")
-// const userAuth = async (req, res, next) => {
-//     try {
-//         if (req.session.user) {
-//             const user = await User.findById(req.session.user);
-//             if (user && !user.isBlocked) {
-//                 return next(); 
-//             } else {
-//                 return res.redirect("/login"); 
-//             }
-//         } else {
-//             return res.redirect("/login");
-//         }
-//     } catch (error) {
-//         console.log("Error in user auth middleware", error);
-//         res.status(500).send("Internal Server Error"); 
-// }
-// };
+
 const userAuth = async (req, res, next) => {
     try {
         let userId = req.session.user || req.session?.passport?.user;
@@ -38,7 +22,8 @@ const userAuth = async (req, res, next) => {
         if (user && !user.isBlocked) {
             return next();
         } else {
-            console.log("User not found or blocked");
+            req.session.user=null
+            res.locals.user = null;
             return res.redirect("/login");
         }
     } catch (error) {

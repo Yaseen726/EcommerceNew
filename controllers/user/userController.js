@@ -74,7 +74,7 @@ const loadHomepage = async (req, res) => {
       user: userData,
       categories: categories,
       categoryFilter: categoryFilter,
-      searchQuery: searchQuery
+      searchQuery: searchQuery,
     });
     console.log(productData,"the product data final")
     console.log(categories,"the categories final")
