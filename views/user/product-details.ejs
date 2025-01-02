@@ -134,7 +134,127 @@
             color: white;
             text-decoration: none;
         }
+        .reviews-section {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
+    .reviews-section h2 {
+      color: #2d3748;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .reviews-section h3 {
+      color: #4a5568;
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .review {
+      padding: 1.5rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s;
+    }
+
+    .review:hover {
+      transform: translateY(-2px);
+    }
+
+    .review strong {
+      color: #2d3748;
+      font-size: 1.1rem;
+    }
+
+    .review p {
+      margin: 0.5rem 0;
+      color: #4a5568;
+      line-height: 1.6;
+    }
+
+    .review small {
+      color: #718096;
+    }
+
+    .review hr {
+      margin: 1rem 0;
+      border: none;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* Rating Stars */
+    .rating {
+      margin-bottom: 1.5rem;
+    }
+
+    .rating label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    .rating select {
+      padding: 0.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 100px;
+      background: white;
+    }
+
+    /* Comment Section */
+    .comment {
+      margin-bottom: 1.5rem;
+    }
+
+    .comment label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    .comment textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      min-height: 120px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    /* Submit Button */
+
+    /* Login Link */
+    .reviews-section a {
+      color: #4299e1;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .reviews-section a:hover {
+      text-decoration: underline;
+    }
+
+    /* No Reviews Message */
+    .reviews-section > p {
+      text-align: center;
+      color: #718096;
+      font-style: italic;
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
 
     </style>
 
@@ -317,65 +437,49 @@
                 <% }) %>
         </div>
     </div>
+    <!-- Reviews Section -->
+    <h2>Customer Reviews</h2>
+  
+    <% if (reviews.length > 0) { %>
+      <div class="reviews">
+        <% reviews.forEach(function(review) { %>
+          <div class="review">
+            <p><strong><%= review.username %></strong> (Rating: <%= review.rating %>/5)</p>
+            <p><%= review.comment %></p>
+            <p><small>Reviewed on <%= new Date(review.date).toLocaleDateString() %></small></p>
+            <hr>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <p>No reviews yet.</p>
+    <% } %>
     
-    <div class="container mt-5">
-        <h4 class="text-center mb-4">Customer Reviews</h4>
-        <div class="review-section">
-            <div class="row">
-                <div class="col-md-8 mx-auto">
-                    <!-- Review Submission Form -->
-                    <div class="review-form mb-4">
-                        <h5 class="text-center">Write a Review</h5>
-                        <form action="" method="POST" class="p-4 border rounded">
-                            <div class="form-group mb-3">
-                                <label for="reviewerName">Name</label>
-                                <input type="text" class="form-control" id="reviewerName" placeholder="Enter your name">
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="reviewerEmail">Email</label>
-                                <input type="email" class="form-control" id="reviewerEmail" placeholder="Enter your email">
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="reviewRating">Rating</label>
-                                <select class="form-control" id="reviewRating">
-                                    <option value="5">⭐⭐⭐⭐⭐</option>
-                                    <option value="4">⭐⭐⭐⭐</option>
-                                    <option value="3">⭐⭐⭐</option>
-                                    <option value="2">⭐⭐</option>
-                                    <option value="1">⭐</option>
-                                </select>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="reviewMessage">Your Review</label>
-                                <textarea class="form-control" id="reviewMessage" rows="4"
-                                    placeholder="Share your thoughts about the product"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100">Submit Review</button>
-                        </form>
-                    </div>
-                    <!-- Display Reviews -->
-                    <div class="customer-reviews">
-                        <h5 class="mb-4 text-center">What Customers Are Saying</h5>
-                        <div class="review-item mb-4 p-3 border rounded">
-                            <h6 class="mb-1">John Doe</h6>
-                            <p class="small text-muted mb-1">⭐⭐⭐⭐⭐</p>
-                            <p class="mb-0">"Amazing product! Exceeded my expectations."</p>
-                        </div>
-                        <div class="review-item mb-4 p-3 border rounded">
-                            <h6 class="mb-1">Jane Smith</h6>
-                            <p class="small text-muted mb-1">⭐⭐⭐⭐</p>
-                            <p class="mb-0">"Good quality but took some time to deliver."</p>
-                        </div>
-                        <div class="review-item mb-4 p-3 border rounded">
-                            <h6 class="mb-1">Alex Brown</h6>
-                            <p class="small text-muted mb-1">⭐⭐⭐</p>
-                            <p class="mb-0">"Decent product for the price, but packaging could be better."</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Review Submission (Hidden for Unlogged Users) -->
+    <% if (user) { %>
+      <h3>Submit Your Review</h3>
+      <form action="/addreview" method="POST">
+        <input type="hidden" name="productId" value="<%= product._id %>">
+        <div class="rating">
+          <label for="rating">Rating:</label>
+          <select name="rating" id="rating" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
         </div>
-    </div>
+        <div class="comment">
+          <label for="comment">Comment:</label>
+          <textarea name="comment" id="comment" required></textarea>
+        </div>
+        <button type="submit">Submit Review</button>
+      </form>
+    <% } else { %>
+      <p>Please <a href="/login">log in</a> to submit a review.</p>
+    <% } %>
+  </div>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
     <script>

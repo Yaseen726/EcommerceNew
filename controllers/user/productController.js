@@ -17,22 +17,62 @@ const razorpayInstance = new Razorpay({
 });
 
 //product details page
+// const getProductDetails = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     const user = await User.findById(userId);
+//     const id = req.query.id;
+//     const productData = await Product.findOne({ _id: id });
+//     const category = await Category.findOne({ _id: productData.category });
+
+//     const finalSalePrice = productData.salePrice;
+//     const regularPrice = productData.regularPrice;
+
+//     const recommendedProducts = await Product.find({
+//       category: productData.category,
+//       _id: { $ne: productData._id },
+//     }).limit(4);
+
+//     res.render("product-details", {
+//       product: productData,
+//       cat: category,
+//       recProducts: recommendedProducts,
+//       user: user,
+//       finalSalePrice: Math.floor(finalSalePrice),
+//       regularPrice: Math.floor(regularPrice),
+//     });
+//   } catch (error) {
+//     res.redirect("/pagenotfound");
+//   }
+// };
+
 const getProductDetails = async (req, res) => {
   try {
     const userId = req.session.user;
     const user = await User.findById(userId);
     const id = req.query.id;
-    const productData = await Product.findOne({ _id: id });
+    
+    // Fetch the product by its ID and populate the reviews
+    const productData = await Product.findOne({ _id: id }).populate("reviews.userId", "username");
+    
+    if (!productData) {
+      return res.redirect("/pagenotfound");
+    }
+
+    // Fetch the category data
     const category = await Category.findOne({ _id: productData.category });
 
-    const finalSalePrice = productData.salePrice;
-    const regularPrice = productData.regularPrice;
-
+    // Fetch recommended products (excluding the current product)
     const recommendedProducts = await Product.find({
       category: productData.category,
       _id: { $ne: productData._id },
     }).limit(4);
 
+    // Calculate final sale price and regular price
+    const finalSalePrice = productData.salePrice;
+    const regularPrice = productData.regularPrice;
+
+    // Pass the product, reviews, and other data to the view
     res.render("product-details", {
       product: productData,
       cat: category,
@@ -40,9 +80,53 @@ const getProductDetails = async (req, res) => {
       user: user,
       finalSalePrice: Math.floor(finalSalePrice),
       regularPrice: Math.floor(regularPrice),
+      reviews: productData.reviews,  // Include reviews here
+      averageRating: productData.averageRating,  // Include average rating here
     });
   } catch (error) {
+    console.error("Error fetching product details:", error);
     res.redirect("/pagenotfound");
+  }
+};
+
+//add reviews
+
+const addReview = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const username= await User.findById(userId)
+    const { productId, rating, comment } = req.body;
+
+    if (!userId) {
+      return res.redirect("/login");
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    const newReview = {
+      userId,
+      username: username.name || "Anonymous",  // Optional: Username from session if logged in
+      rating,
+      comment,
+      date: Date.now(),
+    };
+
+    product.reviews.push(newReview);
+
+    const totalReviews = product.reviews.length;
+    const averageRating = product.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+
+    product.averageRating = averageRating;
+
+    await product.save();
+
+    res.redirect(`/productdetails?id=${productId}`);
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ message: "Something went wrong. Please try again." });
   }
 };
 
@@ -725,5 +809,6 @@ module.exports = {
   ApplyCoupon,
   verifyRazorpayPayment,
   AddAddressCheckout,
-  orderfailed
+  orderfailed,
+  addReview
 };

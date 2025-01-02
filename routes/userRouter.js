@@ -59,7 +59,7 @@ router.post('/reset-password', userController.resetPassword);
 //product details
 
 router.get('/productdetails',productController.getProductDetails);
-
+router.post('/addreview', productController.addReview);
 //user profile
 router.get("/account",userAuth,profileController.userprofile)
 

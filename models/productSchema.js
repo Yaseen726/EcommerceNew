@@ -1,6 +1,7 @@
 const mongoose=require("mongoose")
 const {Schema}=mongoose
 
+const Review = require("./reviewSchema");
 
 const ProductSchema=new Schema({
     productName:{
@@ -52,6 +53,11 @@ const ProductSchema=new Schema({
         type:String,
         enum:["Available","out of stock","Discontinued"],
         required:true
+    },
+    reviews: [Review.schema],
+    averageRating: {
+        type: Number,
+        default: 0,
     },
     
 },{timestamps:true})
