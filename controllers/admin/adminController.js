@@ -20,10 +20,11 @@ const adminlogin = async (req, res) => {
   try {
     const { email, password } = req.body;
     const admin = await User.findOne({ email, isAdmin: true });
+    console.log(admin,"admin logn side for setuping admin id")
     if (admin) {
       const passwordMath = await bcrypt.compare(password, admin.password);
       if (passwordMath) {
-        req.session.Admin = true;
+        req.session.Admin = admin._id;
         return res.redirect("/admin");
       } else {
         return res.render("admin-login",{message:"enter correct password"})

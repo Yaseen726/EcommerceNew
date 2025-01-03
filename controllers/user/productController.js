@@ -58,10 +58,14 @@ const getProductDetails = async (req, res) => {
     if (!productData) {
       return res.redirect("/pagenotfound");
     }
-
+   if(productData.isBlocked){
+    return res.redirect("/")
+   }
     // Fetch the category data
     const category = await Category.findOne({ _id: productData.category });
-
+    if(!category.isListed){
+    return res.redirect("/")
+    }
     // Fetch recommended products (excluding the current product)
     const recommendedProducts = await Product.find({
       category: productData.category,
@@ -104,6 +108,9 @@ const addReview = async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found." });
+    }
+    if(product.isBlocked){
+      return res.redirect("/")
     }
 
     const newReview = {
@@ -157,6 +164,7 @@ const addtocart = async (req, res) => {
     const productId = req.query.id;
     const quantity = parseInt(req.query.qty, 10);
 
+
     if (!userId) {
       return res
         .status(404)
@@ -183,8 +191,8 @@ const addtocart = async (req, res) => {
     if (!cart) {
       cart = new Cart({ userId, items: [] });
     }
-    console.log(cart.items)
-    console.log(cart.items.length,"this is the cart to setting new logic")
+    // console.log(cart.items)
+    // console.log(cart.items.length,"this is the cart to setting new logic")
 
 
     if(cart.items.length>3){
@@ -369,7 +377,7 @@ const getcheckout = async (req, res) => {
         : 1;
 
       if (!product) {
-        return res.redirect("/page-not-found");
+        return res.redirect("/pagenotfound");
       }
 
       totalPrice = product.salePrice * quantity;

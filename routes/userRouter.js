@@ -7,6 +7,7 @@ const productController=require("../controllers/user/productController")
 const wishlistController=require("../controllers/user/wishlistController")
 const walletController=require("../controllers/user/walletController")
 const {userAuth}=require("../middlewares/auth")
+const {checkProductBlocked}=require("../middlewares/auth")
 const User =require("../models/userSchema")
 router.use(async(req, res, next) => {
     const userData = await User.findById(req.session.user);
@@ -58,8 +59,8 @@ router.post('/reset-password', userController.resetPassword);
 
 //product details
 
-router.get('/productdetails',productController.getProductDetails);
-router.post('/addreview', productController.addReview);
+router.get('/productdetails',checkProductBlocked,productController.getProductDetails);
+router.post('/addreview',productController.addReview);
 //user profile
 router.get("/account",userAuth,profileController.userprofile)
 
@@ -73,13 +74,13 @@ router.get("/address/delete",userAuth,profileController.deleteaddress)
 
 //cart
 router.get("/cart",userAuth,productController.loadcart)
-router.get("/cart/checkout",userAuth,productController.getcheckout)
-router.post("/addtocart",productController.addtocart)
+router.get("/cart/checkout",checkProductBlocked,userAuth,productController.getcheckout)
+router.post("/addtocart",checkProductBlocked,productController.addtocart)
 
 router.post("/cart/updateQuantity",userAuth,productController.updatecart)
 router.post("/cart/deleteItem",userAuth,productController.deletecart)
-router.post("/checkout/place-order",userAuth,productController.placeorder)
-router.post("/checkout/verify-razorpay-payment",userAuth,productController.verifyRazorpayPayment)
+router.post("/checkout/place-order",checkProductBlocked,userAuth,productController.placeorder)//changed
+router.post("/checkout/verify-razorpay-payment",checkProductBlocked,userAuth,productController.verifyRazorpayPayment)
 router.post("/checkout/addaddress",userAuth,productController.AddAddressCheckout)
 router.get("/place-order/success",userAuth,productController.ordersuccess)
 router.get("/place-order/failed",userAuth,productController.orderfailed)

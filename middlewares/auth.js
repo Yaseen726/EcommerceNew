@@ -1,6 +1,6 @@
 const User = require("../models/userSchema");
 const mongoose=require("mongoose")
-
+const Product=require("../models/productSchema")
 const userAuth = async (req, res, next) => {
     try {
         let userId = req.session.user || req.session?.passport?.user;
@@ -35,26 +35,56 @@ const userAuth = async (req, res, next) => {
 
 
 const adminAuth = async (req, res, next) => {
-    if(req.session.Admin){
-        try {
-            const admin = await User.findOne({ isAdmin: true });
-            if (admin) {
-                return next();
-            } else {
-                return res.redirect('/admin/login'); 
-            }
-        } catch (error) {
-            console.log("Error in adminAuth Middleware", error);
-            res.status(500).send("Internal Server Error"); 
+    try {
+        let adminId=req.session.Admin
+        if(!adminId){
+            return res.redirect("/admin/login")
         }
-    }else{
-        res.redirect("/admin/login")
+        const user = await User.findById(adminId);
+        if (user && user.isAdmin) {
+            return next();
+        } else {
+            return res.redirect('/admin/login'); 
+        }
+    } catch (error) {
+        console.log("Error in adminAuth Middleware", error);
+        res.status(500).send("Internal Server Error"); 
+    }
+}; 
 
+const checkProductBlocked = async (req, res, next) => {
+    try {
+    const productId = req.query.id;
+    
+    if (!productId) {
+        return res.redirect("/"); 
     }
 
+    const product = await Product.findById(productId).populate('category'); 
+
+    if (!product) {
+        return res.redirect("/"); 
+    }
+
+    if (product.isBlocked) {
+        return res.redirect("/"); 
+    }
+
+    if (!product.category || !product.category.isListed) {
+        return res.redirect("/"); 
+    }
+
+    req.product = product; 
+    next(); 
+    } catch (error) {
+    console.error("Error in middleware:", error);
+    res.status(500).send("Server error");
+    }
 };
+
 
 module.exports = {
     userAuth,
-    adminAuth
+    adminAuth,
+    checkProductBlocked
 };
